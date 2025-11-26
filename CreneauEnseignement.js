@@ -1,10 +1,12 @@
-var CreneauEnseignement = function(jour,heureDebut,heureFin,salle,cours,capacite){
-    this.jour=jour;
-    this.heureDebut=heureDebut;
-    this.heureFin=heureFin;
-    this.salle=salle;
-    this.cours=cours;
-    this.capacite=capacite;
+var CreneauEnseignement = function(type,capacity,day,hourStart,hourEnd,subgroup,room){
+    var index = this.index(input);
+		this.type = type;
+		this.capacity = capacity;
+		this.day = day;
+		this.hourStart = hourStart;
+        this.hourEnd = hourEnd;
+		this.subgroup = subgroup;
+		this.room = room;
 }
 
 module.exports = CreneauEnseignement;
