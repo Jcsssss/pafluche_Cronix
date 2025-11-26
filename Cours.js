@@ -9,4 +9,4 @@ Cours.prototype.addCreneauEnseignement = function(creneauEnseignement){
     this.listeCreneauEnseignement.push(creneauEnseignement);
 };
 
-module.exports = Cours;
+module.exports = CreneauEnseignement;

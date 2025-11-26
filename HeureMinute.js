@@ -4,4 +4,4 @@ var HeureMinute = function(heure,minute){
 }
 
 
-module.exports = Cours;
+module.exports = HeureMinute;

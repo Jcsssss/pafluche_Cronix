@@ -5,7 +5,7 @@ var HeureMinute = require('./HeureMinute')
 var CruParser = function(sTokenize, sParsedSymb){
 	// The list of CreneauEnseignement parsed from the input file.
 	this.parsedCours = [];
-	this.symb = ["+","P","H"," ","note","F","S","//"];
+	this.symb = ["+","P","H","note","F","S","//"];
 	this.showTokenize = sTokenize;
 	this.showParsedSymbols = sParsedSymb;
 	this.errorCount = 0;
@@ -16,7 +16,7 @@ var CruParser = function(sTokenize, sParsedSymb){
 // tokenize : tranform the data input into a list
 // <eol> = CRLF
 CruParser.prototype.tokenize = function(data){
-	var separator = /(\r\n|=|,|-)/;
+	var separator = /(\r\n|=|,|-| )/;
 	data = data.split(separator);
 	data = data.filter((val, idx) => !val.match(separator)); 					
 	return data;
@@ -91,8 +91,8 @@ CruParser.prototype.listCours = function(input){
 // <cours> = "+" <nomCours> <eol> *(<CreneauEnseignement>) 
 CruParser.prototype.cours = function(input){
 
-	if(this.check("+", input)){
-		this.expect("+", input);
+	if(this.check(/\+[A-Za-z]{2}\d{2}/, input)){
+		this.expect(/\+[A-Za-z]{2}\d{2}/, input);
         var nm = this.name(input);
 		var c = new Cours(nm);
 		this.crenEns(input, c);
@@ -110,8 +110,8 @@ CruParser.prototype.cours = function(input){
 
 // <nomCours> = 2ALPHA 2DIGIT
 CruParser.prototype.name = function(input){
-	this.expect("+",input)
-	var curS = this.next(input);
+	this.expect(/\+[A-Za-z]{2}\d{2}/,input)
+	var curS = input[0];
 	if(matched = curS.match(/[A-Za-a]{2}\d{2}/i)){
 		return matched[0];
 	}else{
@@ -123,7 +123,10 @@ CruParser.prototype.name = function(input){
 // <CreneauEnseignement> = <index> "," <type> ",P=" <capacity> ",H=" <day> " " <hourStart> "-" <hourEnd> ",F" <subgroup> ",S=" <room> "//" <eol>
 CruParser.prototype.crenEns = function (input, curCours){
 	if(this.check(/\d/, input)){
+		console.log('Check 1');
 		var index = this.index(input);
+		console.log('Check 2');
+
 		var type = this.type(input);
 		var capacity = this.capacity(input);
 		var day = this.day(input);
@@ -265,5 +268,5 @@ CruParser.prototype.room=function (input){
 	}
 }
 
-
+module.exports = CruParser;
 
