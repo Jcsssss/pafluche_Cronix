@@ -1,3 +1,5 @@
+const HeureMinute = require("./HeureMinute");
+
 var CreneauEnseignement = function(type,capacity,day,hourStart,hourEnd,subgroup,room){
     var index = this.index(input);
 		this.type = type;

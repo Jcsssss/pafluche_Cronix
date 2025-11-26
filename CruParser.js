@@ -1,10 +1,11 @@
 var Cours = require('./Cours');
 var CreneauEnseignement = require('./CreneauEnseignement');
+var HeureMinute = require('./HeureMinute')
 
 var CruParser = function(sTokenize, sParsedSymb){
 	// The list of CreneauEnseignement parsed from the input file.
 	this.parsedCours = [];
-	this.symb = ["+","P","H"," ","-","note","F","S","//"];
+	this.symb = ["+","P","H"," ","note","F","S","//"];
 	this.showTokenize = sTokenize;
 	this.showParsedSymbols = sParsedSymb;
 	this.errorCount = 0;
@@ -15,7 +16,7 @@ var CruParser = function(sTokenize, sParsedSymb){
 // tokenize : tranform the data input into a list
 // <eol> = CRLF
 CruParser.prototype.tokenize = function(data){
-	var separator = /(\r\n|=|,)/;
+	var separator = /(\r\n|=|,|-)/;
 	data = data.split(separator);
 	data = data.filter((val, idx) => !val.match(separator)); 					
 	return data;
@@ -179,6 +180,7 @@ CruParser.prototype.capacity=function (input){
 	}
 }
 
+
 // <day> = L|MA|ME|J|V
 CruParser.prototype.day=function (input){
 	this.expect("H",input)
@@ -191,23 +193,76 @@ CruParser.prototype.day=function (input){
 }
 
 
+// <hourStart> = <heure> ":" <minute>
 CruParser.prototype.hourStart=function (input){
+	if (this.expect(/\d{1,2}}/,input)){
+		var heure = this.heure(input);
+		var minute = this.minute(input);
 
+		return new HeureMinute(heure,minute);
+	}else{
+		this.errMsg("Invalid start hour");
+	}
+	
 }
 
 
+// <hourEnd> = <heure> ":" <minute>
 CruParser.prototype.hourEnd=function (input){
+	if (this.expect(/\d{1,2}}/,input)){
+		var heure = this.heure(input);
+		var minute = this.minute(input);
 
+		return new HeureMinute(heure,minute);
+	}else{
+		this.errMsg("Invalid end hour");
+	}
 }
 
 
+// <heure> = \d{1,2}
+CruParser.prototype.heure=function (input){
+	this.expect(/\d{1,2}/,input)
+	var curS = input[0];
+	if(matched = curS.match(/\d{1,2}/)){
+		return matched[0];
+	}else{
+		this.errMsg("Invalid heure", input);
+	}
+}
+
+
+// <heure> = \d{2}
+CruParser.prototype.minute=function (input){
+	this.expect(":",input)
+	var curS = this.next(input);
+	if(matched = curS.match(/\d{2}/)){
+		return matched[0];
+	}else{
+		this.errMsg("Invalid minute", input);
+	}
+}
+
+// <subgroup> = \d
 CruParser.prototype.subgroup=function (input){
-
+	this.expect("F",input)
+	var curS = this.next(input);
+	if(matched = curS.match(/\d/)){
+		return matched[0];
+	}else{
+		this.errMsg("Invalid subgroup", input);
+	}
 }
 
-
+// <room> = ([A-Za-a]|\d)+
 CruParser.prototype.room=function (input){
-
+	this.expect("S",input)
+	var curS = this.next(input);
+	if(matched = curS.match(/([A-Za-a]|\d)+/)){
+		return matched[0];
+	}else{
+		this.errMsg("Invalid room", input);
+	}
 }
 
 
