@@ -14,7 +14,7 @@ describe("Test of HeureMinute class", function(){
 		
 		expect(this.hm1).toBeDefined();
 		// toBe is === on simple values
-        console.log(this.hm1.heure);
+        // console.log(this.hm1.heure);
 		expect(this.hm1.heure).toBe(this.h1);
         expect(this.hm1.minute).toBe(this.m1);
 		expect(this.hm1).toEqual(jasmine.objectContaining({heure: 9}));
@@ -37,6 +37,19 @@ describe("Test of HeureMinute class", function(){
         expect(hm5.isValidHour()).toBeFalse();
 
 	});
+
+    it("can check if one HeureMinute is equal to another", function(){
+		
+        let hm2 = new HeureMinute("9","15");
+        let hm3 = new HeureMinute("9","30");
+        let hm4 = new HeureMinute("10","00");
+
+        expect(this.hm1.isEqual(hm2)).toBeTrue;
+        expect(this.hm1.isEqual(hm3)).toBeFalse;
+        expect(this.hm1.isEqual(hm4)).toBeFalse;
+
+	});
+
 
 	it("can check if one HeureMinute is lower or equal than another", function(){
 		

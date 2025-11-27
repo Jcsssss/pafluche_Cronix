@@ -14,6 +14,22 @@ HeureMinute.prototype.isValidHour = function(){
     }
 }
 
+HeureMinute.prototype.isEqual = function(compHeureMin){
+    if(this.isValidHour&&compHeureMin.isValidHour){
+        if(this.heure===compHeureMin.heure&&this.minute===compHeureMin.minute){
+            return true;
+        }else{
+            return false;
+        }
+    }else{
+        console.log("Erreur : heure invalide.")
+    }
+}
+
+
+    
+    
+
 HeureMinute.prototype.isBeforeEqual = function(compHeureMin){
     if(this.isValidHour&&compHeureMin.isValidHour){
         if(this.heure<compHeureMin.heure){
