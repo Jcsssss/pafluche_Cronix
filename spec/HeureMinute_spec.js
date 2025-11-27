@@ -68,7 +68,7 @@ describe("Test of HeureMinute class", function(){
 
         expect(this.hm1.isAfterEqual(hm4)).toBeTrue;
 
-	})
+	});
 
 	
 });
