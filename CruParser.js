@@ -74,7 +74,7 @@ CruParser.prototype.check = function(s, input){
 // expect : expect the next symbol to be s.
 CruParser.prototype.expect = function(s, input){
 	if(s == this.next(input)){
-		console.log("Reckognized! "+s)
+		//console.log("Reckognized! "+s)
 		return true;
 	}else{
 		this.errMsg("symbol "+s+" doesn't match", input);

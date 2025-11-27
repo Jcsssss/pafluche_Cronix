@@ -1,0 +1,11 @@
+{
+  "name": "cru-parser-cli",
+  "description": "Offer an interface for a recursive descent parser implemented in Javascript for reading and processing the CLI format. This format allows to describe any list of courses files with an associated list of timeslots. The files are in text format and should respect the following grammar.",
+  "main": "caporalCli.js",
+  "dependencies": {
+    "@caporal/core": "^2.0.7",
+    "colors": "^1.4.0",
+    "vega": "^6.2.0",
+    "vega-lite": "^6.4.1"
+  }
+}
