@@ -13,7 +13,6 @@ describe("Test of CreneauEnseignement class", function(){
 		
 		expect(this.creneau1).toBeDefined();
 		// toBe is === on simple values
-                // console.log(this.hm1.heure);
 		expect(this.creneau1.type).toBe("C1");
 		expect(this.creneau1).toEqual(jasmine.objectContaining({type: "C1"}));
 		
@@ -21,23 +20,26 @@ describe("Test of CreneauEnseignement class", function(){
 	
 	it("can check if two timeslots don't overlap", function(){
 		
-                let creneau2 = new CreneauEnseignement("C1","25","L",new HeureMinute("9","00"),new HeureMinute("11","00"),"F1","N101");
+                let creneau2 = new CreneauEnseignement("C2","25","L",new HeureMinute("9","00"),new HeureMinute("11","00"),"F1","N101");
                 expect(this.creneau1.doesntOverlap(creneau2)).toBeTrue();
 
-                let creneau3 = new CreneauEnseignement("C1","25","MA",new HeureMinute("9","00"),new HeureMinute("11","00"),"F1","M500");
+                let creneau3 = new CreneauEnseignement("C3","25","MA",new HeureMinute("9","00"),new HeureMinute("11","00"),"F1","M500");
                 expect(this.creneau1.doesntOverlap(creneau3)).toBeTrue();
 
-                let creneau4 = new CreneauEnseignement("C1","25","L",new HeureMinute("9","00"),new HeureMinute("10","00"),"F1","M500");
+                let creneau4 = new CreneauEnseignement("C4","25","L",new HeureMinute("9","00"),new HeureMinute("10","00"),"F1","M500");
                 expect(this.creneau1.doesntOverlap(creneau4)).toBeFalse();
                         
-                let creneau5 = new CreneauEnseignement("C1","25","L",new HeureMinute("10","00"),new HeureMinute("11","00"),"F1","M500");
+                let creneau5 = new CreneauEnseignement("C5","25","L",new HeureMinute("10","00"),new HeureMinute("11","00"),"F1","M500");
                 expect(this.creneau1.doesntOverlap(creneau5)).toBeFalse();
 
-                let creneau6 = new CreneauEnseignement("C1","25","L",new HeureMinute("11","00"),new HeureMinute("13","00"),"F1","M500");
+                let creneau6 = new CreneauEnseignement("C6","25","L",new HeureMinute("11","00"),new HeureMinute("13","00"),"F1","M500");
                 expect(this.creneau1.doesntOverlap(creneau6)).toBeTrue();
 
-                let creneau7 = new CreneauEnseignement("C1","25","L",new HeureMinute("14","00"),new HeureMinute("16","00"),"F1","M500");
+                let creneau7 = new CreneauEnseignement("C7","25","L",new HeureMinute("14","00"),new HeureMinute("16","00"),"F1","M500");
                 expect(this.creneau1.doesntOverlap(creneau7)).toBeTrue();
+
+                let creneau8 = new CreneauEnseignement("C7","25","L",new HeureMinute("8","00"),new HeureMinute("9","00"),"F1","M500");
+                expect(this.creneau1.doesntOverlap(creneau8)).toBeTrue();
 
 
 	});

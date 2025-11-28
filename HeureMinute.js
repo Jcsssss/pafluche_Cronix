@@ -26,15 +26,13 @@ HeureMinute.prototype.isEqual = function(compHeureMin){
     }
 }
 
-
-    
     
 
 HeureMinute.prototype.isBeforeEqual = function(compHeureMin){
     if(this.isValidHour&&compHeureMin.isValidHour){
         if(this.heure<compHeureMin.heure){
             return true;
-        }else if(this.heure=compHeureMin.heure){
+        }else if(this.heure===compHeureMin.heure){
             if(this.minute<=compHeureMin.minute){
                 return true;
             }else{
@@ -52,7 +50,7 @@ HeureMinute.prototype.isAfterEqual = function(compHeureMin){
     if(this.isValidHour&&compHeureMin.isValidHour){
         if(this.heure>compHeureMin.heure){
             return true;
-        }else if(this.heure=compHeureMin.heure){
+        }else if(this.heure===compHeureMin.heure){
             if(this.minute>=compHeureMin.minute){
                 return true;
             }else{

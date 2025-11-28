@@ -12,11 +12,16 @@ var CreneauEnseignement = function(type,capacity,day,hourStart,hourEnd,subgroup,
 
 CreneauEnseignement.prototype.whichIsFirst = function(compCreneauEnseignement){
 
-    if(!this.hourStart.isEqual(compCreneauEnseignement.hourStart)){
+
+    if(!(this.hourStart.isEqual(compCreneauEnseignement.hourStart))){
         if(compCreneauEnseignement.hourStart.isBeforeEqual(this.hourStart)){
+
             return compCreneauEnseignement;
+
         }else if(this.hourStart.isBeforeEqual(compCreneauEnseignement.hourStart)){
+
             return this;
+
         }
     }else{
         console.log("Erreur, les deux créneaux sont égaux.");
@@ -25,11 +30,9 @@ CreneauEnseignement.prototype.whichIsFirst = function(compCreneauEnseignement){
 
 CreneauEnseignement.prototype.whichIsLast = function(compCreneauEnseignement){
 
-    if(!this.hourStart.isEqual(compCreneauEnseignement.hourStart)){
-		console.log("trigger1");
+    if(!(this.hourStart.isEqual(compCreneauEnseignement.hourStart))){
 
         if(this.whichIsFirst(compCreneauEnseignement)===this){
-			console.log("trigger2");
         	return compCreneauEnseignement;
         }else{
             return this;
@@ -49,18 +52,10 @@ CreneauEnseignement.prototype.doesntOverlap = function(compCreneauEnseignement){
 
 				return false;
 			}else{
-				console.log(compCreneauEnseignement.hourStart.heure);
-				console.log(compCreneauEnseignement.hourStart.minute);
+
+				const first=this.whichIsFirst(compCreneauEnseignement); // CHANGE LA VALEUR DE hourStart de compCreneauEnseignement ????
 
 				const last = this.whichIsLast(compCreneauEnseignement);
-				 // CHANGE LA VALEUR DE hourStart de compCreneauEnseignement ????
-
-				console.log(compCreneauEnseignement.hourStart.heure);
-				console.log(compCreneauEnseignement.hourStart.minute);
-
-				const first = this.whichIsFirst(compCreneauEnseignement);
-
-				
 				if(first.hourEnd.isBeforeEqual(last.hourStart)){
 					return true;
 				}else{
