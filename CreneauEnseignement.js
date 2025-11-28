@@ -52,12 +52,15 @@ CreneauEnseignement.prototype.doesntOverlap = function(compCreneauEnseignement){
 				console.log(compCreneauEnseignement.hourStart.heure);
 				console.log(compCreneauEnseignement.hourStart.minute);
 
-				const first = this.whichIsFirst(compCreneauEnseignement); // CHANGE LA VALEUR DE hourStart de compCreneauEnseignement ????
-				
+				const last = this.whichIsLast(compCreneauEnseignement);
+				 // CHANGE LA VALEUR DE hourStart de compCreneauEnseignement ????
+
 				console.log(compCreneauEnseignement.hourStart.heure);
 				console.log(compCreneauEnseignement.hourStart.minute);
 
-				const last = this.whichIsLast(compCreneauEnseignement);
+				const first = this.whichIsFirst(compCreneauEnseignement);
+
+				
 				if(first.hourEnd.isBeforeEqual(last.hourStart)){
 					return true;
 				}else{
