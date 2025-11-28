@@ -110,11 +110,11 @@ CruParser.prototype.cours = function(input){
 }
 
 
-// <nomCours> = 2ALPHA 2DIGIT
+// <nomCours> = ([A-Za-a]|\d){4,}
 CruParser.prototype.name = function(input){
 	var curS = input[0];
 	this.next(input);
-	if(matched = curS.match(/[A-Za-a]{2}\d{2}/i)){
+	if(matched = curS.match(/([A-Za-a]|\d){4,}/i)){
 		return matched[0];
 	}else{
 		this.errMsg("Invalid name", input);
