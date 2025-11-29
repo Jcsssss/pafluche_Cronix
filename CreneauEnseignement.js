@@ -1,5 +1,18 @@
 const HeureMinute = require("./HeureMinute");
 
+
+/**
+ * La classe CreneauEnseignement permet de stocker et de manipuler des opérations de base pour un créneau d'enseignement.
+ * 
+ * @see HeureMinute
+ * @param {String} type 
+ * @param {String} capacity 
+ * @param {String} day 
+ * @param {HeureMinute} hourStart 
+ * @param {HeureMinute} hourEnd 
+ * @param {String} subgroup 
+ * @param {String} room 
+ */
 var CreneauEnseignement = function(type,capacity,day,hourStart,hourEnd,subgroup,room){
 	this.type = type;
 	this.capacity = parseInt(capacity);
@@ -10,6 +23,13 @@ var CreneauEnseignement = function(type,capacity,day,hourStart,hourEnd,subgroup,
 	this.room = room;
 }
 
+/**
+ * Permet de renvoyer le créneau d'enseignement qui commence en premier.
+ * ATTENTION, on suppose que les deux créneaux d'enseignement sont le même jour.
+ * 
+ * @param {CreneauEnseignement} compCreneauEnseignement 
+ * @returns {CreneauEnseignement} le premier créneau des deux
+ */
 CreneauEnseignement.prototype.whichIsFirst = function(compCreneauEnseignement){
 
 
@@ -28,6 +48,13 @@ CreneauEnseignement.prototype.whichIsFirst = function(compCreneauEnseignement){
     }
 }
 
+/**
+ * Permet de renvoyer le créneau d'enseignement qui commence en dernier.
+ * ATTENTION, on suppose que les deux créneaux d'enseignement sont le même jour.
+ * 
+ * @param {CreneauEnseignement} compCreneauEnseignement 
+ * @returns {CreneauEnseignement} le dernier créneau des deux
+ */
 CreneauEnseignement.prototype.whichIsLast = function(compCreneauEnseignement){
 
     if(!(this.hourStart.isEqual(compCreneauEnseignement.hourStart))){
@@ -42,7 +69,12 @@ CreneauEnseignement.prototype.whichIsLast = function(compCreneauEnseignement){
     }
 }
 
-
+/**
+ * Permet de vérifier que deux créneaux d'enseignement ne sont pas en même temps dans la même salle.
+ * 
+ * @param {CreneauEnseignement} compCreneauEnseignement 
+ * @returns {Boolean} vraie si les deux créneaux ne sont pas en même temps, faux sinon
+ */
 CreneauEnseignement.prototype.doesntOverlap = function(compCreneauEnseignement){
 	if(this.room===compCreneauEnseignement.room){
 

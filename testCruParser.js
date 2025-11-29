@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-var CruParser = require('./CruParser');
+const CruParser = require('./CruParser');
 
 
 fs.readFile("./SujetA_data/AB/edt.cru", 'utf8', function (err,data) {

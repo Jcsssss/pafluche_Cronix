@@ -1,11 +1,22 @@
+
+/**
+ * Constructeur de la classe HeureMinute. La classe HeureMinute permet de stocker et de manipuler une heure.
+ * 
+ * @param {String} heure 
+ * @param {String} minute 
+ */
 var HeureMinute = function(heure,minute){
     
-
     this.heure= Number(heure);
     this.minute= Number(minute);
 
 }
 
+/**
+ * Permet de vérifier qu'une heure est valide. C'est à dire que son heure est bien entre 0 et 23 et que sa minute est bien entre 0 et 59.
+ * 
+ * @returns {Boolean} vrai si l'heure est valide, faux sinon
+ */
 HeureMinute.prototype.isValidHour = function(){
     if(this.heure>=0 && this.heure<=23 && this.minute>=0 && this.minute<=59){
         return true;
@@ -14,6 +25,12 @@ HeureMinute.prototype.isValidHour = function(){
     }
 }
 
+/**
+ * Vérifie l'égalité entre deux heures.
+ * 
+ * @param {HeureMinute} compHeureMin 
+ * @returns {Boolean} vrai si les deux heures sont égales, faux sinon
+ */
 HeureMinute.prototype.isEqual = function(compHeureMin){
     if(this.isValidHour&&compHeureMin.isValidHour){
         if(this.heure===compHeureMin.heure&&this.minute===compHeureMin.minute){
@@ -27,7 +44,12 @@ HeureMinute.prototype.isEqual = function(compHeureMin){
 }
 
     
-
+/**
+ * Vérifie qu'une heure soit avant ou en même temps qu'une autre.
+ * 
+ * @param {HeureMinute} compHeureMin 
+ * @returns {Boolean} Renvoie vraie si this est avant ou en même temps que l'heure comparée. Renvoie faux sinon.
+ */
 HeureMinute.prototype.isBeforeEqual = function(compHeureMin){
     if(this.isValidHour&&compHeureMin.isValidHour){
         if(this.heure<compHeureMin.heure){
@@ -46,6 +68,12 @@ HeureMinute.prototype.isBeforeEqual = function(compHeureMin){
     }
 }
 
+/**
+ * Vérifie qu'une heure soit après ou en même temps qu'une autre.
+ * 
+ * @param {HeureMinute} compHeureMin 
+ * @returns {Boolean} Renvoie vraie si this est après ou en même temps que l'heure comparée. Renvoie faux sinon.
+ */
 HeureMinute.prototype.isAfterEqual = function(compHeureMin){
     if(this.isValidHour&&compHeureMin.isValidHour){
         if(this.heure>compHeureMin.heure){

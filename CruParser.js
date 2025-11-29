@@ -122,7 +122,7 @@ CruParser.prototype.name = function(input){
 }
 
 
-// <CreneauEnseignement> = <index> "," <type> ",P=" <capacity> ",H=" <day> " " <hourStart> "-" <hourEnd> ",F" <subgroup> ",S=" <room> "//" <eol>
+// <CreneauEnseignement> = "1," <type> ",P=" <capacity> ",H=" <day> " " <hourStart> "-" <hourEnd> ",F" <subgroup> ",S=" <room> "//" <eol>
 CruParser.prototype.crenEns = function (input, curCours){
 	if(this.check("1", input)){
 	
