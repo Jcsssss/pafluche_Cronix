@@ -110,11 +110,11 @@ CruParser.prototype.cours = function(input){
 }
 
 
-// <nomCours> = ([A-Za-a]|\d){4,}
+// <nomCours> = ([A-Za-a]|\d){2,}
 CruParser.prototype.name = function(input){
 	var curS = input[0];
 	this.next(input);
-	if(matched = curS.match(/([A-Za-a]|\d){4,}/i)){
+	if(matched = curS.match(/([A-Za-a]|\d){2,}/i)){
 		return matched[0];
 	}else{
 		this.errMsg("Invalid name", input);
@@ -165,7 +165,7 @@ CruParser.prototype.type=function (input){
 CruParser.prototype.capacity=function (input){
 	this.expect("P",input)
 	var curS = this.next(input);
-	if(matched = curS.match(/\d{2}/)){
+	if(matched = curS.match(/\d{1,2}/)){
 		return matched[0];
 	}else{
 		this.errMsg("Invalid capacity", input);
@@ -178,7 +178,7 @@ CruParser.prototype.day=function (input){
 	this.expect("H",input)
 
 	var curSDay = this.next(input);
-	if(matched = curSDay.match(/L|MA|ME|J|V/)){
+	if(matched = curSDay.match(/L|MA|ME|J|V|S/)){
 		return matched[0];
 	}else{
 		this.errMsg("Invalid day", input);
@@ -230,10 +230,10 @@ CruParser.prototype.minute=function (input){
 	}
 }
 
-// <subgroup> = \d
+// <subgroup> = \d|[A-Z]
 CruParser.prototype.subgroup=function (input){
 	var curS = this.next(input);
-	if(matched = curS.match(/\d/)){
+	if(matched = curS.match(/\d|[A-Z]/)){
 		return matched[0];
 	}else{
 		this.errMsg("Invalid subgroup", input);

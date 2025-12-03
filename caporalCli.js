@@ -25,7 +25,7 @@ cli
 			analyzer.parse(data);
 			
 			if(analyzer.errorCount === 0){
-				logger.info("The .cru file is a valid vpf file".green);
+				logger.info("The .cru file is a valid cru file".green);
 			}else{
 				logger.info("The .cru file contains error".red);
 			}
