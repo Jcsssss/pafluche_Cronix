@@ -141,8 +141,12 @@ cli
 		.alias('ckcstc', 'find_room alias')
 		.option('-s, --showOverlapped', 'log the overlapped data', { validator : cli.BOOLEAN, default: false })
 		.action(({options,logger})=>{
-
-			logger.info(FileManager.dataConsistency(options.showOverlapped));
+			
+			if(FileManager.dataConsistency(options.showOverlapped)){
+				logger.info("Aucun créneau ne se superpose dans la base de données");
+			}else{
+				logger.info("Des créneaux se superposent dans la base de données.\nIl est recommandé de voir lesquels en exécutant la même commande avec l'argument -s.\nMerci de corriger la base de données avant tout autre utilisation de cette dernière.")
+			}
 		})
 		
 	
