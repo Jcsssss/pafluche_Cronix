@@ -20,4 +20,18 @@ Cours.prototype.addCreneauEnseignement = function(creneauEnseignement){
     this.listeCreneauEnseignement.push(creneauEnseignement);
 };
 
+/**
+ * Renvoie true si le nom du cours est égal à l'argument <nom>, false sinon.
+ * 
+ * @param {String} nom 
+ * @returns 
+ */
+Cours.prototype.isNamed = function(nom){
+    if(this.nomCours===nom){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 module.exports = Cours;
