@@ -76,7 +76,7 @@ CreneauEnseignement.prototype.whichIsLast = function(compCreneauEnseignement){
  * @returns {Boolean} vraie si les deux créneaux ne sont pas en même temps, faux sinon
  */
 CreneauEnseignement.prototype.doesntOverlap = function(compCreneauEnseignement){
-	if(this.room===compCreneauEnseignement.room){
+	if(this.room===compCreneauEnseignement.room&& this.room!="EXT1"){
 
 		if(this.day===compCreneauEnseignement.day){
 
