@@ -136,7 +136,7 @@ cli
 		}
 		})
 				
-
+		//Check database consistency : no overlapping timeslot
 		.command('check_consistency', 'Check if no timeslots overlap')
 		.alias('ckcstc', 'find_room alias')
 		.option('-s, --showOverlapped', 'log the overlapped data', { validator : cli.BOOLEAN, default: false })
