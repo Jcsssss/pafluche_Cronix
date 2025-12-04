@@ -35,4 +35,17 @@ describe("Test of FileManager", function(){
         expect(FileManager.hasNext()).toBeFalse;
 		
 	});
+
+    it("can check if the whole database has no overlapped timeslot", function(){
+
+           expect(FileManager.dataConsistency(false)).toBeTrue;
+           
+           //Changing the root from which the database is taken to a root where the datas are overlapped.
+           FileManager.root="./overlappedData";
+
+           expect(FileManager.dataConsistency(false)).toBeFalse;
+
+           FileManager.root=".";
+
+    });
 });

@@ -43,4 +43,5 @@ describe("Test of CreneauEnseignement class", function(){
 
 
 	});
+
 });

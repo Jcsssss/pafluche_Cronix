@@ -136,10 +136,13 @@ cli
 		}
 		})
 				
+
 		.command('check_consistency', 'Check if no timeslots overlap')
 		.alias('ckcstc', 'find_room alias')
-		.action(({logger})=>{
-			logger.info(FileManager.dataConsistency());
+		.option('-s, --showOverlapped', 'log the overlapped data', { validator : cli.BOOLEAN, default: false })
+		.action(({options,logger})=>{
+
+			logger.info(FileManager.dataConsistency(options.showOverlapped));
 		})
 		
 	

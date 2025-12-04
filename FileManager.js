@@ -148,7 +148,7 @@ class FileManager{
      * 
      * @returns true si aucun créneau n'est en même temps, false sinon
      */
-    static dataConsistency(){
+    static dataConsistency(showValue){
         FileManager.initialize();
 
 		let listeCours=[];
@@ -238,22 +238,24 @@ class FileManager{
         let indiceCours=0;
         let i = 0;
         if(globalFoundOverlap){
-            let message ="Créneaux incohérents trouvés :";
-            listeCreneauEnseignementIncoherent.forEach((group)=>{
-                message= message+"\n"
-                i=0;
-                group.forEach((creneau)=>{
-                    if(i===0){
-                        message=message + "Le créneau :\n" + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\navec :\n";
-                        indiceCours++;
-                        i++;
-                    }else{
-                        message=message + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\n";
-                        indiceCours++;
-                    }
+            if(showValue){
+                let message ="Créneaux incohérents trouvés :";
+                listeCreneauEnseignementIncoherent.forEach((group)=>{
+                    message= message+"\n"
+                    i=0;
+                    group.forEach((creneau)=>{
+                        if(i===0){
+                            message=message + "Le créneau :\n" + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\navec :\n";
+                            indiceCours++;
+                            i++;
+                        }else{
+                            message=message + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\n";
+                            indiceCours++;
+                        }
+                    });
                 });
-            });
-            console.log(message);
+                console.log(message);
+            }
             return false;
         }else{
             return true;
