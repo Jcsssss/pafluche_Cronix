@@ -1,9 +1,14 @@
 const fs = require('fs');
+const CruParser = require('./CruParser.js');
+const CreneauEnseignement = require('./CreneauEnseignement.js');
+const Cours = require('./Cours.js');
+const HeureMinute = require('./HeureMinute.js');
 
 class FileManager{
 
     static folders = ["AB","CD","EF","GH","IJ","KL","MN","OP","QR","ST"];
     static index = 0;
+    static root = ".";
 
     /**
      * Return a relative file path according to the first letter of the argument <nomCours>. The files are expected to be found at, starting from projet root, "/SujetA_data/".
@@ -134,6 +139,127 @@ class FileManager{
         }else{
             return true;
         }
+    }
+
+
+    /**
+     * Vérifie si tous les créneaux de tous les fichiers ne se situent pas en même temps dans la même salle.
+     * Ecrit dans la console les créneaux qui overlap si il y en a.
+     * 
+     * @returns true si aucun créneau n'est en même temps, false sinon
+     */
+    static dataConsistency(){
+        FileManager.initialize();
+
+		let listeCours=[];
+
+		while(FileManager.hasNext()){
+
+			let data = fs.readFileSync(FileManager.next(), 'utf8');
+			let analyzer = new CruParser(false, false);
+			analyzer.parse(data);
+			listeCours.push(analyzer.parsedCours);
+		}
+
+        let currentCreneauEnseignement;
+        let listeCreneauEnseignementIncoherent= [];
+        listeCreneauEnseignementIncoherent[0]= new Array();
+        let listeCoursIncoherent= [];
+        let indiceListe = 0;
+        let globalFoundOverlap= false;
+        let foundOverlap=false;
+
+
+        let verificationDoublon=false;
+
+        listeCours.forEach((fileCourses) => {
+			fileCourses.forEach((course) =>{
+				if(course instanceof Cours){
+					course.listeCreneauEnseignement.forEach((creneauEnseignement) => {
+						if(creneauEnseignement instanceof CreneauEnseignement){
+
+                            currentCreneauEnseignement=creneauEnseignement;
+
+							listeCours.forEach((fileCourses2) => {
+                                fileCourses2.forEach((course2) =>{
+                                    if(course2 instanceof Cours){
+                                        course2.listeCreneauEnseignement.forEach((creneauEnseignement2) => {
+                                            if(creneauEnseignement2 instanceof CreneauEnseignement){
+                                                
+                                                if(creneauEnseignement2!=currentCreneauEnseignement){
+                                                    if(!(currentCreneauEnseignement.doesntOverlap(creneauEnseignement2))){
+                                                        
+                                                        verificationDoublon=false;
+
+                                                        if(globalFoundOverlap){
+                                                            listeCreneauEnseignementIncoherent.forEach((bloc)=>{
+                                                                
+                                                                //console.log(JSON.stringify(bloc));
+                                                                if(bloc.includes(currentCreneauEnseignement) && bloc.includes(creneauEnseignement2)){
+                                                                    //console.log('Worked !');
+                                                                    verificationDoublon=true;
+                                                                }
+                                                            });
+                                                        }
+                                                        if(!verificationDoublon){
+                                                        
+                                                            if(!foundOverlap){
+                                                                listeCreneauEnseignementIncoherent[indiceListe]= new Array();
+                                                                listeCoursIncoherent.push(course.nomCours);
+                                                                listeCreneauEnseignementIncoherent[indiceListe].push(currentCreneauEnseignement);
+                                                                
+                                                            }
+                                                            globalFoundOverlap=true;
+                                                            foundOverlap=true;
+                                                            listeCoursIncoherent.push(course2.nomCours);
+                                                            listeCreneauEnseignementIncoherent[indiceListe].push(creneauEnseignement2);
+                                                        }
+                                                    }
+                                                }
+
+
+                                                
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+
+                            foundOverlap=false;
+                            indiceListe++;
+
+						}
+					})
+				}
+			})
+		});
+
+
+        let indiceCours=0;
+        let i = 0;
+        if(globalFoundOverlap){
+            let message ="Créneaux incohérents trouvés :";
+            listeCreneauEnseignementIncoherent.forEach((group)=>{
+                message= message+"\n"
+                i=0;
+                group.forEach((creneau)=>{
+                    if(i===0){
+                        message=message + "Le créneau :\n" + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\navec :\n";
+                        indiceCours++;
+                        i++;
+                    }else{
+                        message=message + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\n";
+                        indiceCours++;
+                    }
+                });
+            });
+            console.log(message);
+            return false;
+        }else{
+            return true;
+        }
+       
+
     }
 }
 module.exports = FileManager

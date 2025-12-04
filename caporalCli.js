@@ -36,6 +36,7 @@ cli
 			logger.debug(analyzer.parsedCours);
 
 		});
+
 			
 	})
 
@@ -135,6 +136,11 @@ cli
 		}
 		})
 				
+		.command('check_consistency', 'Check if no timeslots overlap')
+		.alias('ckcstc', 'find_room alias')
+		.action(({logger})=>{
+			logger.info(FileManager.dataConsistency());
+		})
 		
 	
 

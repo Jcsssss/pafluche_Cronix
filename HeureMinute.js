@@ -92,4 +92,19 @@ HeureMinute.prototype.isAfterEqual = function(compHeureMin){
     }
 }
 
+/**
+ * Renvoie l'heure sous forme de chaîne de caractères, prêt pour l'affichage.
+ * 
+ * @returns {String}
+ */
+HeureMinute.prototype.toString = function(){
+
+    message = this.heure.toString();
+    message = message + ":";
+    message = message + this.minute.toString();
+
+    return message;
+
+}
+
 module.exports = HeureMinute;

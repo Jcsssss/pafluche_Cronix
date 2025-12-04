@@ -1,4 +1,4 @@
-const HeureMinute = require("./HeureMinute");
+const HeureMinute = require("./HeureMinute.js");
 
 
 /**
@@ -100,6 +100,32 @@ CreneauEnseignement.prototype.doesntOverlap = function(compCreneauEnseignement){
 	}else{
 		return true;
 	}
+}
+
+/**
+ * Renvoie le créneau sous forme de chaîne de caractères, prêt pour l'affichage.
+ * 
+ * @returns {String}
+ */
+CreneauEnseignement.prototype.toString = function(){
+
+	message = "Type : ";
+	message = message + this.type;
+	message = message + " ; Capacité : ";
+	message = message + this.capacity;
+	message = message + " ; Jour : ";
+	message = message + this.day;
+	message = message + " ; Horaire : ";
+	message = message + this.hourStart.toString();
+	message = message + " - ";
+	message = message + this.hourEnd.toString();
+	message = message + " ; Sous-groupe : ";
+	message = message + this.subgroup;
+	message = message + " ; Salle : ";
+	message = message + this.room;
+
+	return message;
+
 }
 
 
