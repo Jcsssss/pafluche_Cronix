@@ -142,10 +142,12 @@ class FileManager{
     }
 
 
+
     /**
      * Vérifie si tous les créneaux de tous les fichiers ne se situent pas en même temps dans la même salle.
      * Ecrit dans la console les créneaux qui overlap si il y en a.
      * 
+     * @param {Boolean} showValue true affiche les créneaux horaires qui se superposent, false ne les affiche pas
      * @returns true si aucun créneau n'est en même temps, false sinon
      */
     static dataConsistency(showValue){
