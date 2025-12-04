@@ -40,7 +40,8 @@ cli
 	})
 
 	//Find rooms associated to a course
-	.command('find_room', 'Find all the rooms used by a course')
+	.command('find_room', 'Find all the rooms used by <courseName>')
+	.alias('fdrm', 'find_room alias')
 	.argument('<courseName>', 'The courses\'s name')
 	.action(({args, logger})=>{
 		let filePath = FileManager.findFileWithCourse(args.courseName);
@@ -88,7 +89,8 @@ cli
 	})
 
 	//Find rooms size
-	.command('find_room_size', 'Find the size of a room')
+	.command('find_room_size', 'Find the maximum capacity of <room>')
+	.alias('fdrmsz', 'find_room alias')
 	.argument('<room>', 'The room\'s name')
 	.action(({args, logger})=>{
 		FileManager.initialize();
