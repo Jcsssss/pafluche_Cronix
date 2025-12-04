@@ -5,6 +5,14 @@ class FileManager{
     static folders = ["AB","CD","EF","GH","IJ","KL","MN","OP","QR","ST"];
     static index = 0;
 
+    /**
+     * Return a relative file path according to the first letter of the argument <nomCours>. The files are expected to be found at, starting from projet root, "/SujetA_data/".
+     * Courses are then sorted in alphabetical order inside sub-repositories, example : "/SujetA_data/AB/edt.cru" for courses starting with A or B.
+     * Caution : function only returns the path to the expected file, does not check if the file contains the course.
+     * 
+     * @param {String} nomCours nom du cours dont on cherche le fichier
+     * @returns relative file path to the supposed .cru file containing the course
+     */
     static findFileWithCourse(nomCours){
         let filePath;
         switch(nomCours[0]){
@@ -76,16 +84,50 @@ class FileManager{
         return filePath
     }
     
+    /**
+     * Set the static object FileManager.index to 0. Always used before getting all file paths.
+     * 
+     * To get all the relative file paths, always proceed as such :
+     * 
+     * FileManager.initialize();
+     * while(FileManager.hasNext()){
+     *      FileManager.next();
+     * }
+     */
     static initialize(){
         this.index=0;
     }
 
+    /**
+     * Returns the next relative file path to come.
+     * 
+     * To get all the relative file paths, always proceed as such :
+     * 
+     * FileManager.initialize();
+     * while(FileManager.hasNext()){
+     *      FileManager.next();
+     * }
+     * 
+     * @returns relative file path to the next .cru file.
+     */
     static next(){
         const returnValue = this.folders[this.index];
         this.index++;
         return ("./SujetA_data/"+returnValue+"/edt.cru");
     }
 
+    /**
+     * Returns if there is a next file path.
+     * 
+     * To get all the relative file paths, always proceed as such :
+     * 
+     * FileManager.initialize();
+     * while(FileManager.hasNext()){
+     *      FileManager.next();
+     * }
+     * 
+     * @returns true if there is still a file path to return, false if there is none
+     */
     static hasNext(){
         if(this.index===this.folders.length){
             return false;
