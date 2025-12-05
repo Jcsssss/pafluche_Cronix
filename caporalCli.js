@@ -151,7 +151,7 @@ cli
 	})
 
 	// check availability of a room
-	.command('check_availability_room', 'Check when a room is available')
+	.command('check_availability_room', 'Check when <room> is available')
 	.alias('ckavlbr', 'check_availability_room alias')
 	.argument('<room>', 'The room\'s name')
 	.action(({args,logger})=>{
@@ -257,7 +257,7 @@ cli
 	})
 
 	// check availability of a time range
-	.command('check_availability_time_range', 'Check which rooms are free for a given time range')
+	.command('check_availability_time_range', 'Check which rooms are free for a given <day> and <timeRange>')
 	.alias('ckavlbtr', 'check_availability_time_range alias')
 	.argument('<day>', 'The day of the time range to check')
 	.argument('<timeRange>', 'The time range to check (e.g. 10:00-12:00)')
@@ -347,7 +347,180 @@ cli
 			console.log(freeRooms.length);
 		}
 		
-	});
+	})
+
+	// generate iCalendar file
+	.command('generate_iCalendar', 'generate iCalendar file from your timetable')
+	.alias('gric', 'generate_iCalendar alias')
+	.action(({args,logger})=>{
+		const readline = require('readline');
+		const rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
+
+		const question = (query) => new Promise(resolve => rl.question(query, resolve));
+
+		(async () => {
+			try {
+				// nombre de cours
+				const numCoursesStr = await question('Nombre d\'enseignements auxquels vous participez : ');
+				const numCourses = parseInt(numCoursesStr);
+				if(isNaN(numCourses) || numCourses <= 0){
+					logger.info('Nombre invalide d\'enseignements.');
+					rl.close();
+					return;
+				}
+
+				// chaque cours et groupe
+				const coursesWithGroups = [];
+				for(let i = 0; i < numCourses; i++){
+					const courseName = await question(`Nom du cours ${i+1} : `);
+					const group = await question(`Groupe pour ${courseName} : `);
+					coursesWithGroups.push({ name: courseName.toUpperCase(), group: group });
+				}
+
+				// dates de début et fin
+				const startDateStr = await question('Date de début (JJ/MM/AAAA) : ');
+				const endDateStr = await question('Date de fin (JJ/MM/AAAA) : ');
+
+				const parseDate = (dateStr) => {
+					const parts = dateStr.split('/');
+					if(parts.length !== 3) return null;
+					const d = parseInt(parts[0]);
+					const m = parseInt(parts[1]);
+					const y = parseInt(parts[2]);
+					if(isNaN(d) || isNaN(m) || isNaN(y)) return null;
+					return new Date(y, m-1, d);
+				};
+
+				const startDate = parseDate(startDateStr);
+				const endDate = parseDate(endDateStr);
+
+				if(!startDate || !endDate){
+					logger.info('Format de date invalide. Format attendu : JJ/MM/AAAA');
+					rl.close();
+					return;
+				}
+
+				if(endDate < startDate){
+					logger.info('La date de fin doit être après la date de début.');
+					rl.close();
+					return;
+				}
+
+				rl.close();
+
+				FileManager.initialize();
+				let allCourses = [];
+				while(FileManager.hasNext()){
+					let data = fs.readFileSync(FileManager.next(), 'utf8');
+					let analyzer = new CruParser(false, false);
+					analyzer.parse(data);
+					if(Array.isArray(analyzer.parsedCours)) allCourses.push(...analyzer.parsedCours);
+				}
+
+				const events = [];
+				const dayMap = { 'L': 0, 'MA': 1, 'ME': 2, 'J': 3, 'V': 4 };
+
+				for(let reqCourse of coursesWithGroups){
+					let courseFound = false;
+
+					for(let course of allCourses){
+						if(course instanceof Cours && course.nomCours === reqCourse.name){
+							courseFound = true;
+							for(let creneau of course.listeCreneauEnseignement){
+								console.log(creneau);
+								if(creneau instanceof CreneauEnseignement && creneau.subgroup === reqCourse.group){
+									events.push({
+										courseName: course.nomCours,
+										day: creneau.day,
+										dayNum: dayMap[creneau.day],
+										hourStart: creneau.hourStart,
+										hourEnd: creneau.hourEnd,
+										room: creneau.room,
+										type: creneau.type,
+										subgroup: creneau.subgroup
+									});
+								}
+							}
+							break;
+						}
+					}
+
+					if(!courseFound){
+						logger.info(`La matière ${reqCourse.name} n'existe pas ou qu'il y a eu une erreur de saisie. Elle n'a pas été incluse.`);
+					}
+				}
+
+				if(events.length === 0){
+					logger.info('Aucun créneau n\'a pu être trouvé pour les matières et groupes spécifiés.');
+					return;
+				}
+
+				const generateICalendar = () => {
+					let ical = 'BEGIN:VCALENDAR\r\n';
+					ical += 'VERSION:2.0\r\n';
+					ical += 'PRODID:-//GL02 CRU Parser//FR\r\n';
+					ical += `CALSCALE:GREGORIAN\r\n`;
+					ical += `METHOD:PUBLISH\r\n`;
+
+					const currentDate = new Date(startDate);
+					const weekDays = ['L', 'MA', 'ME', 'J', 'V'];
+
+					while(currentDate <= endDate){
+						// Only process Monday through Friday
+						const dayOfWeek = currentDate.getDay();
+						if(dayOfWeek >= 1 && dayOfWeek <= 5){
+							const dayName = weekDays[dayOfWeek - 1];
+							
+							for(const event of events){
+								if(event.day === dayName){
+									const eventStart = new Date(currentDate);
+									eventStart.setHours(event.hourStart.heure, event.hourStart.minute, 0);
+									const eventEnd = new Date(currentDate);
+									eventEnd.setHours(event.hourEnd.heure, event.hourEnd.minute, 0);
+
+									const formatDateTime = (d) => {
+										const pad = (n) => (n < 10 ? '0' : '') + n;
+										return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + 'T' +
+											pad(d.getHours()) + pad(d.getMinutes()) + '00';
+									};
+
+									const uid = `${event.courseName}-${formatDateTime(eventStart)}@glpafluche`;
+
+									ical += 'BEGIN:VEVENT\r\n';
+									ical += `UID:${uid}\r\n`;
+									ical += `DTSTAMP:${formatDateTime(new Date())}\r\n`;
+									ical += `DTSTART:${formatDateTime(eventStart)}\r\n`;
+									ical += `DTEND:${formatDateTime(eventEnd)}\r\n`;
+									ical += `SUMMARY:${event.courseName} (${event.type})\r\n`;
+									ical += `LOCATION:${event.room}\r\n`;
+									ical += `DESCRIPTION:Groupe: ${event.subgroup}\r\n`;
+									ical += 'END:VEVENT\r\n';
+								}
+							}
+						}
+
+						currentDate.setDate(currentDate.getDate() + 1);
+					}
+
+					ical += 'END:VCALENDAR\r\n';
+					return ical;
+				};
+
+				const iCalContent = generateICalendar();
+				const fileName = 'timetable.ics';
+				fs.writeFileSync(fileName, iCalContent, 'utf8');
+
+				logger.info(`Fichier iCalendar généré avec succès : ${fileName}`);
+
+			} catch (err) {
+				logger.info('Erreur lors de la génération du fichier iCalendar : ' + err.message);
+			}
+		})();
+
+	})
 
 
 cli.run(process.argv.slice(2));
