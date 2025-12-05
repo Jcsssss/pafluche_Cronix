@@ -101,7 +101,12 @@ HeureMinute.prototype.toString = function(){
 
     message = this.heure.toString();
     message = message + ":";
-    message = message + this.minute.toString();
+    if(this.minute === 0){
+        message = message + "00";
+    } else {
+        message = message + this.minute.toString();
+    }
+    
 
     return message;
 
