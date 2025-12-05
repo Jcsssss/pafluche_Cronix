@@ -151,6 +151,9 @@ CreneauEnseignement.prototype.dayToNumber = function(){
 		case "V":
 			dayNumber = 4;
 			break;
+		case "S":
+			dayNumber = 5;
+			break;
 	}
 	return dayNumber;
 }
