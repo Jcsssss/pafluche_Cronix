@@ -4,6 +4,7 @@ const CruParser = require('./CruParser.js');
 const FileManager = require('./FileManager.js');
 const CreneauEnseignement = require('./CreneauEnseignement.js');
 const Cours = require('./Cours.js');
+const HeureMinute = require('./HeureMinute.js');
 
 const vg = import('vega');
 const vegalite = import('vega-lite');
@@ -134,21 +135,126 @@ cli
 		}else{
 			logger.info("La salle "+ args.room +" ne figure pas dans la base de données.")
 		}
-		})
-				
-		//Check database consistency : no overlapping timeslot
-		.command('check_consistency', 'Check if no timeslots overlap')
-		.alias('ckcstc', 'find_room alias')
-		.option('-s, --showOverlapped', 'log the overlapped data', { validator : cli.BOOLEAN, default: false })
-		.action(({options,logger})=>{
+	})
 			
-			if(FileManager.dataConsistency(options.showOverlapped)){
-				logger.info("Aucun créneau ne se superpose dans la base de données");
-			}else{
-				logger.info("Des créneaux se superposent dans la base de données.\nIl est recommandé de voir lesquels en exécutant la même commande avec l'argument -s.\nMerci de corriger la base de données avant tout autre utilisation de cette dernière.")
-			}
-		})
+	//Check database consistency : no overlapping timeslot
+	.command('check_consistency', 'Check if no timeslots overlap')
+	.alias('ckcstc', 'find_room alias')
+	.option('-s, --showOverlapped', 'log the overlapped data', { validator : cli.BOOLEAN, default: false })
+	.action(({options,logger})=>{
 		
-	
+		if(FileManager.dataConsistency(options.showOverlapped)){
+			logger.info("Aucun créneau ne se superpose dans la base de données");
+		}else{
+			logger.info("Des créneaux se superposent dans la base de données.\nIl est recommandé de voir lesquels en exécutant la même commande avec l'argument -s.\nMerci de corriger la base de données avant tout autre utilisation de cette dernière.")
+		}
+	})
+
+	// check availability of a room
+	.command('check_availability', 'Check when a room is available')
+	.alias('ckavlb', 'check_availability alias')
+	.argument('<room>', 'The room\'s name')
+	.action(({args,logger})=>{
+
+		FileManager.initialize();
+
+		let listeCours = [];
+
+		while(FileManager.hasNext()){
+			let data = fs.readFileSync(FileManager.next(), 'utf8');
+			let analyzer = new CruParser(false, false);
+			analyzer.parse(data);
+			if(Array.isArray(analyzer.parsedCours)){
+				listeCours.push(...analyzer.parsedCours);
+			}
+		}
+
+		let roomFound = false;
+		let roomOccupation = [[],[],[],[],[]];
+
+		listeCours.forEach((course) => {
+			if(course instanceof Cours){
+				course.listeCreneauEnseignement.forEach((creneau) => {
+					if(creneau instanceof CreneauEnseignement && creneau.room === args.room){
+						roomFound = true;
+						const d = creneau.dayToNumber();
+						if(typeof d === 'number'){
+							roomOccupation[d].push({ start: creneau.hourStart, end: creneau.hourEnd });
+						}
+					}
+				});
+			}
+		});
+
+		if(!roomFound){
+			logger.info("La salle rentrée n'existe pas");
+			return;
+		}
+
+		const dayFull = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+		let anyFree = false;
+
+		for(let di = 0; di < roomOccupation.length; di++){
+			const intervals = roomOccupation[di];
+
+			const conv = intervals.map(it => ({ s: it.start, e: it.end }));
+			conv.sort((a,b) => {
+				if(a.s.heure === b.s.heure) return a.s.minute - b.s.minute;
+				return a.s.heure - b.s.heure;
+			});
+
+			const merged = [];
+			for(const iv of conv){
+				if(merged.length === 0){
+					merged.push({ s: iv.s, e: iv.e });
+					continue;
+				}
+				const last = merged[merged.length - 1];
+				if(iv.s.isBeforeEqual(last.e)){
+					if(iv.e.isAfterEqual(last.e)){
+						last.e = iv.e;
+					}
+				}else{
+					merged.push({ s: iv.s, e: iv.e });
+				}
+			}
+
+			// définit le début et la fin de la journée
+			const DAY_START = new HeureMinute(8,0);
+			const DAY_END = new HeureMinute(20,0);
+
+			const frees = [];
+
+			if(DAY_START.isBeforeEqual(merged[0].s) && !DAY_START.isEqual(merged[0].s)){
+				frees.push({ s: DAY_START, e: merged[0].s });
+			}
+
+			for(let i=0;i<merged.length-1;i++){
+				if(merged[i].e.isBeforeEqual(merged[i+1].s) && !merged[i].e.isEqual(merged[i+1].s)){
+					frees.push({ s: merged[i].e, e: merged[i+1].s });
+				}
+			}
+
+			if(merged[merged.length-1].e.isBeforeEqual(DAY_END) && !merged[merged.length-1].e.isEqual(DAY_END)){
+				frees.push({ s: merged[merged.length-1].e, e: DAY_END });
+			}
+
+			if(frees.length === 0){
+				logger.info(dayFull[di] + ' : aucune plage libre');
+			}else{
+				anyFree = true;
+				let msg = dayFull[di] + ' : plages libres ->\n';
+				frees.forEach((f) => {
+					msg += f.s.toString() + ' - ' + f.e.toString() + '\n';
+				});
+				logger.info(msg);
+			}
+		}
+
+		if(!anyFree){
+			logger.info("La salle n'a plus de créneaux libres");
+		}
+	})
+
 
 cli.run(process.argv.slice(2));

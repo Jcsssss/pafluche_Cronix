@@ -128,6 +128,32 @@ CreneauEnseignement.prototype.toString = function(){
 
 }
 
+/**
+ * Renvoie le jour du créneau sous forme d'un nombre entier.
+ * 
+ * @returns {Number}
+ */
+CreneauEnseignement.prototype.dayToNumber = function(){
+	let dayNumber;
+	switch(this.day){
+		case "L":
+			dayNumber = 0;
+			break;
+		case "MA":
+			dayNumber = 1;
+			break;
+		case "ME":
+			dayNumber = 2;
+			break;
+		case "J":
+			dayNumber = 3;
+			break;	
+		case "V":
+			dayNumber = 4;
+			break;
+	}
+	return dayNumber;
+}
 
 
 
