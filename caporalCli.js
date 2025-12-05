@@ -151,8 +151,8 @@ cli
 	})
 
 	// check availability of a room
-	.command('check_availability', 'Check when a room is available')
-	.alias('ckavlb', 'check_availability alias')
+	.command('check_availability_room', 'Check when a room is available')
+	.alias('ckavlbr', 'check_availability_room alias')
 	.argument('<room>', 'The room\'s name')
 	.action(({args,logger})=>{
 
@@ -255,6 +255,99 @@ cli
 			logger.info("La salle n'a plus de créneaux libres");
 		}
 	})
+
+	// check availability of a time range
+	.command('check_availability_time_range', 'Check which rooms are free for a given time range')
+	.alias('ckavlbtr', 'check_availability_time_range alias')
+	.argument('<day>', 'The day of the time range to check')
+	.argument('<timeRange>', 'The time range to check (e.g. 10:00-12:00)')
+	.action(({args,logger})=>{
+		const day = (args.day || '').toString().trim().toUpperCase();
+		const timeRange = (args.timeRange || '').toString().trim();
+
+		const parts = timeRange.split('-');
+		const startStr = parts[0] || '';
+		const endStr = parts[1] || '';
+
+		const startParts = startStr.split(':');
+		const sh = startParts[0] || '';
+		const sm = startParts[1] || '';
+		const endParts = endStr.split(':');
+		const eh = endParts[0] || '';
+		const em = endParts[1] || '';
+		
+		const slotStart = new HeureMinute(sh, sm);
+		const slotEnd = new HeureMinute(eh, em);
+
+		if(!slotStart.isValidHour() || !slotEnd.isValidHour()){
+			logger.info('Heure invalide dans le créneau. Ex : "MA 10:00-12:00".');
+			return;
+		}
+
+		if(slotEnd.isBeforeEqual(slotStart)){
+			logger.info('Le créneau horaire de fin doit être après celui de début.');
+			return;
+		}
+
+		FileManager.initialize();
+		let listeCours = [];
+		while(FileManager.hasNext()){
+			let data = fs.readFileSync(FileManager.next(), 'utf8');
+			let analyzer = new CruParser(false, false);
+			analyzer.parse(data);
+			if(Array.isArray(analyzer.parsedCours)) listeCours.push(...analyzer.parsedCours);
+		}
+
+		const rooms = new Set();
+		listeCours.forEach((course) => {
+			if(course instanceof Cours){
+				course.listeCreneauEnseignement.forEach((cr) => {
+					if(cr instanceof CreneauEnseignement){
+						rooms.add(cr.room);
+					}
+				});
+			}
+		});
+
+		if(rooms.size === 0){
+			logger.info('Aucune salle trouvée dans la base de données.');
+			return;
+		}
+
+		const freeRooms = [];
+
+		for(const room of rooms){
+			let occupied = false;
+			listeCours.forEach((course) => {
+				if(occupied) return;
+				if(course instanceof Cours){
+					course.listeCreneauEnseignement.forEach((cr) => {
+						if(occupied) return;
+						if(cr instanceof CreneauEnseignement && cr.room === room){
+							if(String(cr.day).toUpperCase() === day){
+								const requestedSlot = new CreneauEnseignement('', 0, day, slotStart, slotEnd, '', room);
+								if(!cr.doesntOverlap(requestedSlot)){
+									occupied = true;
+								}
+							}
+						}
+					});
+				}
+			});
+
+			if(!occupied) freeRooms.push(room);
+		}
+
+		if(freeRooms.length === 0){
+			logger.info('Aucune salle disponible pour le créneau ' + day + ' ' + timeRange);
+		}else{
+			let msg = 'Salles libres pour ' + day + ' ' + timeRange + ' :\n';
+			freeRooms.forEach(r => { msg += r + '\n'; });
+			logger.info(msg);
+			console.log(freeRooms.length);
+		}
+		
+	});
 
 
 cli.run(process.argv.slice(2));
