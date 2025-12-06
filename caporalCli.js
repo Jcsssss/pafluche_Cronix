@@ -164,26 +164,26 @@ cli
 			let data = fs.readFileSync(FileManager.next(), 'utf8');
 			let analyzer = new CruParser(false, false);
 			analyzer.parse(data);
-			if(Array.isArray(analyzer.parsedCours)){
-				listeCours.push(...analyzer.parsedCours);
-			}
+			listeCours.push(analyzer.parsedCours);
 		}
 
 		let roomFound = false;
-		let roomOccupation = [[],[],[],[],[]];
+		let roomOccupation = [[],[],[],[],[],[]];
 
-		listeCours.forEach((course) => {
-			if(course instanceof Cours){
-				course.listeCreneauEnseignement.forEach((creneau) => {
-					if(creneau instanceof CreneauEnseignement && creneau.room === args.room){
-						roomFound = true;
-						const d = creneau.dayToNumber();
-						if(typeof d === 'number'){
-							roomOccupation[d].push({ start: creneau.hourStart, end: creneau.hourEnd });
+		listeCours.forEach((fileCourses) => {
+			fileCourses.forEach((course) =>{
+				if(course instanceof Cours){
+					course.listeCreneauEnseignement.forEach((creneau) => {
+						if(creneau instanceof CreneauEnseignement && creneau.room === args.room){
+							roomFound = true;
+							const d = creneau.dayToNumber();
+							if(typeof d === 'number'){
+								roomOccupation[d].push({ start: creneau.hourStart, end: creneau.hourEnd });
+							}
 						}
-					}
-				});
-			}
+					});
+				}
+			})
 		});
 
 		if(!roomFound){
@@ -191,7 +191,7 @@ cli
 			return;
 		}
 
-		const dayFull = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+		const dayFull = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 		let anyFree = false;
 
 		for(let di = 0; di < roomOccupation.length; di++){
@@ -225,18 +225,23 @@ cli
 
 			const frees = [];
 
-			if(DAY_START.isBeforeEqual(merged[0].s) && !DAY_START.isEqual(merged[0].s)){
-				frees.push({ s: DAY_START, e: merged[0].s });
-			}
-
-			for(let i=0;i<merged.length-1;i++){
-				if(merged[i].e.isBeforeEqual(merged[i+1].s) && !merged[i].e.isEqual(merged[i+1].s)){
-					frees.push({ s: merged[i].e, e: merged[i+1].s });
+			// Si aucun créneau occupé n'existe pour la journée, la journée est entièrement libre
+			if(merged.length === 0){
+				frees.push({ s: DAY_START, e: DAY_END });
+			}else{
+				if(DAY_START.isBeforeEqual(merged[0].s) && !DAY_START.isEqual(merged[0].s)){
+					frees.push({ s: DAY_START, e: merged[0].s });
 				}
-			}
 
-			if(merged[merged.length-1].e.isBeforeEqual(DAY_END) && !merged[merged.length-1].e.isEqual(DAY_END)){
-				frees.push({ s: merged[merged.length-1].e, e: DAY_END });
+				for(let i=0;i<merged.length-1;i++){
+					if(merged[i].e.isBeforeEqual(merged[i+1].s) && !merged[i].e.isEqual(merged[i+1].s)){
+						frees.push({ s: merged[i].e, e: merged[i+1].s });
+					}
+				}
+
+				if(merged[merged.length-1].e.isBeforeEqual(DAY_END) && !merged[merged.length-1].e.isEqual(DAY_END)){
+					frees.push({ s: merged[merged.length-1].e, e: DAY_END });
+				}
 			}
 
 			if(frees.length === 0){
