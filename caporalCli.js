@@ -425,7 +425,7 @@ cli
 				}
 
 				const events = [];
-				const dayMap = { 'L': 0, 'MA': 1, 'ME': 2, 'J': 3, 'V': 4 };
+				const dayMap = { 'L': 0, 'MA': 1, 'ME': 2, 'J': 3, 'V': 4, 'S': 5 };
 
 				for(let reqCourse of coursesWithGroups){
 					let courseFound = false;
@@ -559,7 +559,7 @@ cli
 		});
 
 		const occupationMap = {}; 
-		const validDays = { 'L': 0, 'MA': 1, 'ME': 2, 'J': 3, 'V': 4 };
+		const validDays = { 'L': 0, 'MA': 1, 'ME': 2, 'J': 3, 'V': 4, 'S': 5 };
 
 		allCourses.forEach((course) => {
 			if(course instanceof Cours){
@@ -604,7 +604,7 @@ cli
 			return a.timeStart.minute - b.timeStart.minute;
 		});
 
-		const dayNames = { 'L': 'Lundi', 'MA': 'Mardi', 'ME': 'Mercredi', 'J': 'Jeudi', 'V': 'Vendredi' };
+		const dayNames = { 'L': 'Lundi', 'MA': 'Mardi', 'ME': 'Mercredi', 'J': 'Jeudi', 'V': 'Vendredi', 'S': 'Samedi' };
 
 		let output = '\n';
 		output += '╔═══════════╦═════════════╦════════╦═══════════╦════════════╦══════════════╗\n';

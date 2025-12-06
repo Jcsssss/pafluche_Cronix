@@ -27,14 +27,39 @@ caporalCli.js <command> [ARGUMENTS] [OPTIONS]
 COMMANDS — Type 'caporalCli.js help <command>' to get some help about a command
 
     check                                Check if <file> is a valid CRU file
+        argument: <file>                 The file to check with cru parser
+        options : -s, --showSymbols      log the analyzed symbol at each step
+                  -t, --showTokenize     log the tokenization results
+
+
     find_room                            Find all the rooms used by <courseName>
+        argument: <courseName>           The course's name
+
+
     find_room_size                       Find the maximum capacity of <room>
+        argument: <room>                 The room's name
+
+
     check_consistency                    Check if no timeslots overlap
+        option: -s, --showOverlapped     log the overlapped data
+
+
     check_availability_room              Check when <room> is available
-    check_availability_time_range        Check which rooms are free for a given <day> and
-                                         <timeRange>
+        argument: <room>                 The room's name
+
+
+    check_availability_time_range        Check which rooms are free for a given <day> and <timeRange>
+        argument: <day>                  The day of the time range to check
+                  <timeRange>            The time range to check (e.g. 10:00-12:00)
+
+
     generate_iCalendar                   generate iCalendar file from your timetable
+
+
     visualize_occupation                 visualize occupation rate of rooms
+
+
+    sort_capacity                        sort rooms by capacity
 
 GLOBAL OPTIONS
 
