@@ -72,13 +72,6 @@ GLOBAL OPTIONS
                                          indication of success or failure other than the exit
                                          code.
 
-# Dépendances
-
-"@caporal/core": "^2.0.7",
-"colors": "^1.4.0",
-"vega": "^6.2.0",
-"vega-lite": "^6.4.1"
-
 # Tests
 
 Cours_spec : Pour un cours donné, on teste l'ajout d'un créneau d'enseignment précis dans sa liste de créneaux et le nom de ce cours
@@ -92,6 +85,17 @@ FileManager_spec : On teste le parcours à travers la liste des dossiers, la rec
 # Jeux de données fournis
 
 Les fichiers de format CRU sont classés par ordre alphabétique du nom des cours, stockés dans les dossiers SujetA_data et overlappedData. Ces fichiers contenant les emplois de temps fictifs, ils constituent nos jeux de données.
+
+# Ecarts au cahier de charge
+
+La fonctionnalité 10, relative à l'interface interagissant avec l'utilisateur, n'a pu être implémentée.
+
+# Dépendances
+
+"@caporal/core": "^2.0.7",
+"colors": "^1.4.0",
+"vega": "^6.2.0",
+"vega-lite": "^6.4.1"
 
 # Installation
 
