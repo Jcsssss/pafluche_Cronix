@@ -18,7 +18,32 @@ Cours(nomCours,listeCreneauEnseignement) : addCreneauEnseignement, isNamed
 
 iCalendar, CRU
 
-# Aide et Installation
+# Aide
+
+caporalCli.js <command>
+
+COMMANDS — Type 'caporalCli.js help <command>' to get some help about a command
+
+    check                                Check if <file> is a valid CRU file
+    find_room                            Find all the rooms used by <courseName>
+    find_room_size                       Find the maximum capacity of <room>
+    check_consistency                    Check if no timeslots overlap
+    check_availability_room              Check when <room> is available
+    check_availability_time_range        Check which rooms are free for a given <day> and
+                                         <timeRange>
+    generate_iCalendar                   generate iCalendar file from your timetable
+    visualize_occupation                 visualize occupation rate of rooms
+
+GLOBAL OPTIONS
+
+    -h, --help                           Display global help or command-related help.
+    -V, --version                        Display version.
+    --no-color                           Disable use of colors in output.
+    -v, --verbose                        Verbose mode: will also output debug messages.
+    --quiet                              Quiet mode - only displays warn and error messages.
+    --silent                             Silent mode: does not output anything, giving no
+                                         indication of success or failure other than the exit
+                                         code.
 
 # Dépendances
 
@@ -34,3 +59,7 @@ Cours_spec : Pour un cours donné, on teste l'ajout d'un créneau d'enseignment 
 CreneauEnseignement_spec : Pour un créneau initial, on vérifie sa création et la collision avec d'autres créneaux d'enseignement
 
 HeureMinute_spec : Pour une heure de cours donné, on teste sa validité; si elle est avant, après ou égale par rapport à une autre heure
+
+# Installation
+
+$ npm install
