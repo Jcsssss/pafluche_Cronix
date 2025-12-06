@@ -134,7 +134,7 @@ CreneauEnseignement.prototype.toString = function(){
  * @returns {Number}
  */
 CreneauEnseignement.prototype.dayToNumber = function(){
-	let dayNumber;
+	let dayNumber = -1;
 	switch(this.day){
 		case "L":
 			dayNumber = 0;
@@ -150,6 +150,9 @@ CreneauEnseignement.prototype.dayToNumber = function(){
 			break;	
 		case "V":
 			dayNumber = 4;
+			break;
+		case "S":
+			dayNumber = 5;
 			break;
 	}
 	return dayNumber;
