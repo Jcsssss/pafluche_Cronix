@@ -629,5 +629,54 @@ cli
 		logger.info(output);
 	})
 
+	// sort rooms by capacity
+	.command('sort_capacity', 'sort rooms by capacity')
+	.alias('sc', 'sort_capacity alias')
+	.action(({logger})=>{
+		FileManager.initialize();
+		const roomMaxCapacity = {};
+
+		while(FileManager.hasNext()){
+			let data = fs.readFileSync(FileManager.next(), 'utf8');
+			let analyzer = new CruParser(false, false);
+			analyzer.parse(data);
+			if(Array.isArray(analyzer.parsedCours)){
+				analyzer.parsedCours.forEach((course) => {
+					if(course instanceof Cours){
+						course.listeCreneauEnseignement.forEach((creneau) => {
+							if(creneau instanceof CreneauEnseignement){
+								const room = creneau.room || '';
+								const cap = parseInt(creneau.capacity) || 0;
+								if(room){
+									if(!roomMaxCapacity[room] || cap > roomMaxCapacity[room]){
+										roomMaxCapacity[room] = cap;
+									}
+								}
+							}
+						});
+					}
+				});
+			}
+		}
+
+		const entries = Object.entries(roomMaxCapacity).map(([room, cap]) => ({ room, cap }))
+			.sort((a, b) => b.cap - a.cap || a.room.localeCompare(b.room));
+
+		if(entries.length === 0){
+			logger.info('Aucune salle trouvée dans la base de données.');
+			return;
+		}
+
+		let output = '\nSalles triées par capacité (décroissante) :\n';
+		output += 'Salle'.padEnd(12) + 'Capacité\n';
+		output += '--------'.padEnd(12) + '--------\n';
+		entries.forEach(e => {
+			output += e.room.padEnd(12) + String(e.cap).padStart(8) + '\n';
+		});
+
+		logger.info(output);
+
+	})
+	
 
 cli.run(process.argv.slice(2));
