@@ -344,7 +344,6 @@ cli
 			let msg = 'Salles libres pour ' + day + ' ' + timeRange + ' :\n';
 			freeRooms.forEach(r => { msg += r + '\n'; });
 			logger.info(msg);
-			console.log(freeRooms.length);
 		}
 		
 	})
@@ -430,7 +429,6 @@ cli
 						if(course instanceof Cours && course.nomCours === reqCourse.name){
 							courseFound = true;
 							for(let creneau of course.listeCreneauEnseignement){
-								console.log(creneau);
 								if(creneau instanceof CreneauEnseignement && creneau.subgroup === reqCourse.group){
 									events.push({
 										courseName: course.nomCours,
@@ -518,7 +516,7 @@ cli
 			} catch (err) {
 				logger.info('Erreur lors de la génération du fichier iCalendar : ' + err.message);
 			}
-		})
+		})()
 
 	})
 
@@ -541,7 +539,6 @@ cli
 			return;
 		}
 
-		// Step 1: Calculate max capacity for each room (same logic as find_room_size)
 		const roomMaxCapacity = {};
 
 		allCourses.forEach((course) => {
@@ -556,9 +553,8 @@ cli
 			}
 		});
 
-		// Step 2: Collect all creneaux grouped by (day, room, timeSlot)
-		const occupationMap = {}; // key: "day|hh:mm-hh:mm|room"
-		const validDays = { 'L': 0, 'MA': 1, 'ME': 2, 'J': 3, 'V': 4 }; // filter valid days
+		const occupationMap = {}; 
+		const validDays = { 'L': 0, 'MA': 1, 'ME': 2, 'J': 3, 'V': 4 };
 
 		allCourses.forEach((course) => {
 			if(course instanceof Cours){
@@ -578,7 +574,6 @@ cli
 							};
 						}
 
-						// Add the course's capacity to used capacity
 						occupationMap[key].usedCapacity += creneau.capacity;
 						occupationMap[key].courses.push(course.nomCours);
 					}
@@ -591,7 +586,6 @@ cli
 			return;
 		}
 
-		// Sort by day, then room, then time
 		const sortedEntries = Object.values(occupationMap).sort((a, b) => {
 			if(validDays[a.day] !== validDays[b.day]){
 				return validDays[a.day] - validDays[b.day];
@@ -599,7 +593,6 @@ cli
 			if(a.room !== b.room){
 				return a.room.localeCompare(b.room);
 			}
-			// sort by start time
 			if(a.timeStart.heure !== b.timeStart.heure){
 				return a.timeStart.heure - b.timeStart.heure;
 			}
@@ -608,7 +601,6 @@ cli
 
 		const dayNames = { 'L': 'Lundi', 'MA': 'Mardi', 'ME': 'Mercredi', 'J': 'Jeudi', 'V': 'Vendredi' };
 
-		// Build output table
 		let output = '\n';
 		output += '╔═══════════╦═════════════╦════════╦═══════════╦════════════╦══════════════╗\n';
 		output += '║    Jour   ║   Créneau   ║ Salle  ║ Utilisées ║ Capacité   ║ Occupation % ║\n';
@@ -628,17 +620,6 @@ cli
 		});
 
 		output += '╚═══════════╩═════════════╩════════╩═══════════╩════════════╩══════════════╝\n';
-
-		// Summary statistics
-		let totalUsed = 0;
-		let totalCapacity = 0;
-		sortedEntries.forEach((entry) => {
-			totalUsed += entry.usedCapacity;
-			totalCapacity += entry.maxCapacityForRoom;
-		});
-
-		const globalPercent = totalCapacity > 0 ? ((totalUsed / totalCapacity) * 100).toFixed(1) : '0.0';
-		output += `\nTotalisation : ${totalUsed} places utilisées / ${totalCapacity} places disponibles = ${globalPercent}% d'occupation globale\n`;
 
 		logger.info(output);
 	})

@@ -234,7 +234,7 @@ CruParser.prototype.minute=function (input){
 CruParser.prototype.subgroup=function (input){
 	var curS = this.next(input);
 	if(curS && (matched = curS.match(/^[0-9A-Z]/))){
-		return matched[0];
+		return matched.input.slice(-1);
 	}else{
 		this.errMsg("Invalid subgroup", input);
 	}
