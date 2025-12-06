@@ -22,7 +22,7 @@ iCalendar, CRU
 
 # Aide
 
-caporalCli.js <command> [OPTIONS]
+caporalCli.js <command> [ARGUMENTS] [OPTIONS]
 
 COMMANDS — Type 'caporalCli.js help <command>' to get some help about a command
 
