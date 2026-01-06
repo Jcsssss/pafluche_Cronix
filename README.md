@@ -49,7 +49,7 @@ COMMANDS — Type 'caporalCli.js help <command>' to get some help about a comman
 
 
     check_availability_time_range        Check which rooms are free for a given <day> and <timeRange>
-        argument: <day>                  The day of the time range to check
+        argument: <day>                  The day of the time range to check with day abbreviation: L (Monday), MA (Tuesday), ME (Wednesday), J (Thursday), V (Friday), S (Saturday)
                   <timeRange>            The time range to check (e.g. 10:00-12:00)
 
 
