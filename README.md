@@ -90,6 +90,13 @@ Les fichiers de format CRU sont classés par ordre alphabétique du nom des cour
 
 La fonctionnalité 10, relative à l'interface interagissant avec l'utilisateur, n'a pu être implémentée.
 
+Limitations connues
+
+- L’interface CLI n’est pas interactive : aucune confirmation, menu ou retour automatique au menu n’est proposé.
+- Les commandes s’exécutent directement avec des messages informatifs.
+- Lors de la génération de fichiers iCalendar, les cours inexistants ou mal saisis sont ignorés et signalés par un message d’information.
+
+
 # Dépendances
 
 "@caporal/core": "^2.0.7",
