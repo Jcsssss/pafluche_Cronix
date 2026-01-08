@@ -381,7 +381,10 @@ cli
 				for(let i = 0; i < numCourses; i++){
 					const courseName = await question(`Nom du cours ${i+1} : `);
 					const group = await question(`Groupe pour ${courseName} : `);
-					coursesWithGroups.push({ name: courseName.toUpperCase(), group: group });
+coursesWithGroups.push({
+  name: courseName.toString().trim().toUpperCase(),
+  group: group.toString().trim().toUpperCase()
+});
 				}
 
 				// dates de début et fin
@@ -434,7 +437,10 @@ cli
 						if(course instanceof Cours && course.nomCours === reqCourse.name){
 							courseFound = true;
 							for(let creneau of course.listeCreneauEnseignement){
-								if(creneau instanceof CreneauEnseignement && creneau.subgroup === reqCourse.group){
+								if (
+  creneau instanceof CreneauEnseignement &&
+  String(creneau.subgroup).trim().toUpperCase() === reqCourse.group
+){
 									events.push({
 										courseName: course.nomCours,
 										day: creneau.day,
@@ -679,4 +685,72 @@ cli
 	})
 	
 
-cli.run(process.argv.slice(2));
+// --- MENU MODE (when no command is provided) ---
+async function runMenu() {
+  const readline = require('readline');
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const ask = (q) => new Promise(res => rl.question(q, res));
+
+  const confirm = async (label) => {
+    const ans = (await ask(`Confirmer "${label}" ? (oui/non) : `)).trim().toLowerCase();
+    return ans === 'oui' || ans === 'o' || ans === 'y' || ans === 'yes';
+  };
+
+  while (true) {
+    console.log('\n=== MENU ===');
+    console.log('1) visualize_occupation');
+    console.log('2) sort_capacity');
+    console.log('3) generate_iCalendar');
+    console.log('0) quitter');
+
+    const choice = (await ask('Votre choix : ')).trim();
+
+    if (choice === '0') {
+      console.log('Au revoir.');
+      rl.close();
+      return;
+    }
+
+    if (choice === '1') {
+      const ok = await confirm('visualize_occupation');
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue; // ✅ fix issue #1 (non => feedback + menu)
+      }
+      // lance la commande via caporal (mode commande)
+      await cli.run(['visualize_occupation']);
+      continue;
+    }
+
+    if (choice === '2') {
+      const ok = await confirm('sort_capacity');
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue; // ✅ fix issue #3 (non => feedback + menu)
+      }
+      await cli.run(['sort_capacity']);
+      continue; // ✅ retour menu après exécution (issue #3)
+    }
+
+    if (choice === '3') {
+      const ok = await confirm('generate_iCalendar');
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue;
+      }
+      await cli.run(['generate_iCalendar']);
+      continue;
+    }
+
+    console.log('Choix invalide. Réessayez.');
+  }
+}
+
+const argv = process.argv.slice(2);
+
+// If no command => interactive menu, else normal caporal behavior.
+if (argv.length === 0) {
+  runMenu();
+} else {
+  cli.run(argv);
+}

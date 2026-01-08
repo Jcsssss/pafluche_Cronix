@@ -14,11 +14,12 @@ var CruParser = function(sTokenize, sParsedSymb){
 // Parser procedure
 
 // tokenize : tranform the data input into a list
-// <eol> = CRLF
+// <eol> = CRLF or LF
 CruParser.prototype.tokenize = function(data){
-	var separator = /(\r\n|=|,|-| |:)/;
+	// ✅ MINIMAL FIX: handle both \r\n (Windows) and \n (Unix/macOS)
+	var separator = /(\r\n|\n|=|,|-| |:)/;
 	data = data.split(separator);
-	data = data.filter((val, idx) => !val.match(separator)); 					
+	data = data.filter((val, idx) => val !== '' && !val.match(separator));
 	return data;
 }
 
@@ -66,7 +67,7 @@ CruParser.prototype.accept = function(s){
 CruParser.prototype.check = function(s, input){
 	//console.log(input);
 	if(this.accept(input[0]) == this.accept(s)){
-		return true;	
+		return true;
 	}
 	return false;
 }
@@ -89,16 +90,16 @@ CruParser.prototype.listCours = function(input){
 	this.cours(input);
 }
 
-// <cours> = "+" <nomCours> <eol> *(<CreneauEnseignement>) 
+// <cours> = "+" <nomCours> <eol> *(<CreneauEnseignement>)
 CruParser.prototype.cours = function(input){
 
 	if(this.check("+", input[0][0])){
-		
+
         var nm = this.name(input);
 		var c = new Cours(nm);
 		this.crenEns(input, c);
 		this.parsedCours.push(c);
-		
+
 		if(input.length > 0 && input[0]){
 			this.cours(input);
 		}
@@ -125,7 +126,7 @@ CruParser.prototype.name = function(input){
 // <CreneauEnseignement> = "1," <type> ",P=" <capacity> ",H=" <day> " " <hourStart> "-" <hourEnd> ",F" <subgroup> ",S=" <room> "//" <eol>
 CruParser.prototype.crenEns = function (input, curCours){
 	if(this.check("1", input)){
-	
+
 		var type = this.type(input);
 		var capacity = this.capacity(input);
 		var day = this.day(input);
@@ -135,9 +136,9 @@ CruParser.prototype.crenEns = function (input, curCours){
 		var room = this.room(input);
 
 		var creneauEnseignement = new CreneauEnseignement(type,capacity,day,hourStart,hourEnd,subgroup,room);
-		
+
 		curCours.addCreneauEnseignement(creneauEnseignement);
-		
+
 		if(input[0]){
 			if(input.length > 0 && !this.check("+", input[0][0])){
 					this.crenEns(input, curCours);
@@ -195,7 +196,7 @@ CruParser.prototype.hourStart=function (input){
 
 	return new HeureMinute(heure,minute);
 
-	
+
 }
 
 
@@ -244,7 +245,7 @@ CruParser.prototype.subgroup=function (input){
 CruParser.prototype.room=function (input){
 	this.expect("S",input)
 	var curS = this.next(input);
-	
+
 	if(this.check("/",curS[4])){
 		if(this.check("/",curS[5])){
 			curS=curS.substring(0,4);
@@ -261,8 +262,7 @@ CruParser.prototype.room=function (input){
 	}
 
 
-	
+
 }
 
 module.exports = CruParser;
-
