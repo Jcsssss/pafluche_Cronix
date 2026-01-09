@@ -2,7 +2,9 @@
 
 Le projet est développé en JavaScript (Node.js) dans le cadre du cours de GL02.
 
-## 1. Installation (à la première utilisation)
+## 1. Installation
+
+### 1.1 : Pré-requis
 
 Avant d'utiliser l'application, assurez-vous d'avoir :
 - Node.js 18+ installé : https://nodejs.org/
@@ -12,6 +14,8 @@ Puis faites les commandes suivantes :
 `npm install`
 
 `npm install vega vega-lite canvas`
+
+### 1.2 : Utilisation de l'application
 
 `node caporalCli.js` puis suivez le menu affiché.
 
