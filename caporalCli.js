@@ -726,9 +726,15 @@ async function runMenu() {
 
   while (true) {
     console.log('\n=== MENU ===');
-    console.log('1) visualize_occupation');
-    console.log('2) sort_capacity');
-    console.log('3) generate_iCalendar');
+    console.log('1) check (valider un fichier .cru)');
+    console.log('2) find_room (salles utilisées par un cours)');
+    console.log('3) find_room_size (capacité max d\'une salle)');
+    console.log('4) check_consistency (détecter chevauchements)');
+    console.log('5) check_availability_room (disponibilités d\'une salle)');
+    console.log('6) check_availability_time_range (salles libres pour un créneau)');
+    console.log('7) generate_iCalendar');
+    console.log('8) visualize_occupation');
+    console.log('9) sort_capacity');
     console.log('0) quitter');
 
     const choice = (await ask('Votre choix : ')).trim();
@@ -739,34 +745,133 @@ async function runMenu() {
       return;
     }
 
+    // 1) check <file>
     if (choice === '1') {
-      const ok = await confirm('visualize_occupation');
+      const file = (await ask('Chemin du fichier .cru : ')).trim();
+      if (!file) {
+        console.log('Entrée invalide (chemin vide). Retour au menu.');
+        continue;
+      }
+      const ok = await confirm(`check ${file}`);
       if (!ok) {
         console.log('Action annulée. Retour au menu.');
-        continue; // ✅ fix issue #1 (non => feedback + menu)
+        continue;
       }
-      // lance la commande via caporal (mode commande)
-      await cli.run(['visualize_occupation']);
+      await cli.run(['check', file]);
       continue;
     }
 
+    // 2) find_room <courseName>
     if (choice === '2') {
-      const ok = await confirm('sort_capacity');
+      const courseName = (await ask('Nom du cours : ')).trim();
+      if (!courseName) {
+        console.log('Entrée invalide (nom vide). Retour au menu.');
+        continue;
+      }
+      const ok = await confirm(`find_room ${courseName}`);
       if (!ok) {
         console.log('Action annulée. Retour au menu.');
-        continue; // ✅ fix issue #3 (non => feedback + menu)
+        continue;
       }
-      await cli.run(['sort_capacity']);
-      continue; // ✅ retour menu après exécution (issue #3)
+      await cli.run(['find_room', courseName]);
+      continue;
     }
 
+    // 3) find_room_size <room>
     if (choice === '3') {
+      const room = (await ask('Nom de la salle : ')).trim();
+      if (!room) {
+        console.log('Entrée invalide (salle vide). Retour au menu.');
+        continue;
+      }
+      const ok = await confirm(`find_room_size ${room}`);
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue;
+      }
+      await cli.run(['find_room_size', room]);
+      continue;
+    }
+
+    // 4) check_consistency [-s]
+    if (choice === '4') {
+      const show = (await ask('Afficher les créneaux superposés ? (oui/non) : ')).trim().toLowerCase();
+      const ok = await confirm(`check_consistency${(show === 'oui' || show === 'o' || show === 'y' || show === 'yes') ? ' -s' : ''}`);
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue;
+      }
+      if (show === 'oui' || show === 'o' || show === 'y' || show === 'yes') {
+        await cli.run(['check_consistency', '-s']);
+      } else {
+        await cli.run(['check_consistency']);
+      }
+      continue;
+    }
+
+    // 5) check_availability_room <room>
+    if (choice === '5') {
+      const room = (await ask('Nom de la salle : ')).trim();
+      if (!room) {
+        console.log('Entrée invalide (salle vide). Retour au menu.');
+        continue;
+      }
+      const ok = await confirm(`check_availability_room ${room}`);
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue;
+      }
+      await cli.run(['check_availability_room', room]);
+      continue;
+    }
+
+    // 6) check_availability_time_range <day> <timeRange>
+    if (choice === '6') {
+      const day = (await ask('Jour (L/MA/ME/J/V/S) : ')).trim();
+      const timeRange = (await ask('Créneau (ex: 10:00-12:00) : ')).trim();
+      if (!day || !timeRange) {
+        console.log('Entrée invalide (jour ou créneau vide). Retour au menu.');
+        continue;
+      }
+      const ok = await confirm(`check_availability_time_range ${day} ${timeRange}`);
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue;
+      }
+      await cli.run(['check_availability_time_range', day, timeRange]);
+      continue;
+    }
+
+    // 7) generate_iCalendar
+    if (choice === '7') {
       const ok = await confirm('generate_iCalendar');
       if (!ok) {
         console.log('Action annulée. Retour au menu.');
         continue;
       }
       await cli.run(['generate_iCalendar']);
+      continue;
+    }
+
+    // 8) visualize_occupation
+    if (choice === '8') {
+      const ok = await confirm('visualize_occupation');
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue;
+      }
+      await cli.run(['visualize_occupation']);
+      continue;
+    }
+
+    // 9) sort_capacity
+    if (choice === '9') {
+      const ok = await confirm('sort_capacity');
+      if (!ok) {
+        console.log('Action annulée. Retour au menu.');
+        continue;
+      }
+      await cli.run(['sort_capacity']);
       continue;
     }
 
@@ -782,3 +887,4 @@ if (argv.length === 0) {
 } else {
   cli.run(argv);
 }
+
