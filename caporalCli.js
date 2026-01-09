@@ -89,51 +89,79 @@ cli
 		}
 
 	})
-
-	//Find rooms size
+//Find rooms size
 	.command('find_room_size', 'Find the maximum capacity of <room>')
 	.alias('fdrmsz', 'find_room alias')
 	.argument('<room>', 'The room\'s name')
-	.action(({args, logger})=>{
-		FileManager.initialize();
-
-		let listeCours=[];
-
-		while(FileManager.hasNext()){
-
-			let data = fs.readFileSync(FileManager.next(), 'utf8');
-			let analyzer = new CruParser(false, false);
-			analyzer.parse(data);
-			listeCours.push(analyzer.parsedCours);
+	.action(({ args, logger }) => {
+		//Firstly, verify if the file containing the room capacity exists
+		let contentFile="";
+		try{
+			contentFile = fs.readFileSync("roomCapacity.txt", "utf-8");
+		}catch(err){
+			contentFile="";
 		}
+		
+		let dataFound = false;
+		if (contentFile.length !== 0) {
+			let dataCapacityRooms = contentFile.split("\n");
 
-		//logger.info(JSON.stringify(listeCours));
+			for (let i = 0; i < dataCapacityRooms.length; i++) {
+				let data = dataCapacityRooms[i].split(":");
 
-		let roomFound = false;
+				if (data[0] === args.room) {
+					dataFound = true;
+					logger.info("La capacité maximale de la salle " + args.room + " trouvée dans la base de données est de " + data[1]);
+				}
+			}
 
-		let maxCapacityFound = 0;
 
-		listeCours.forEach((fileCourses) => {
-			fileCourses.forEach((course) =>{
-				
-				if(course instanceof Cours){
-					course.listeCreneauEnseignement.forEach((creneauEnseignement) => {
-						if(creneauEnseignement instanceof CreneauEnseignement){
-							if(creneauEnseignement.room===args.room){
-								roomFound=true;
-								if(creneauEnseignement.capacity>maxCapacityFound){
-									maxCapacityFound=creneauEnseignement.capacity;
+		}
+		//If the file isn't found or if the room isn't saved in the file
+		if (dataFound === false) {
+			logger.info("La capacité maximale de la salle " + args.room + " n'est pas encore enregistrée dans un fichier mais il est possible de la calculer");
+
+			FileManager.initialize();
+
+			let listeCours = [];
+
+			while (FileManager.hasNext()) {
+
+				let data = fs.readFileSync(FileManager.next(), 'utf8');
+				let analyzer = new CruParser(false, false);
+				analyzer.parse(data);
+				listeCours.push(analyzer.parsedCours);
+			}
+
+			//logger.info(JSON.stringify(listeCours));
+
+			let roomFound = false;
+
+			let maxCapacityFound = 0;
+
+			listeCours.forEach((fileCourses) => {
+				fileCourses.forEach((course) => {
+
+					if (course instanceof Cours) {
+						course.listeCreneauEnseignement.forEach((creneauEnseignement) => {
+							if (creneauEnseignement instanceof CreneauEnseignement) {
+								if (creneauEnseignement.room === args.room) {
+									roomFound = true;
+									if (creneauEnseignement.capacity > maxCapacityFound) {
+										maxCapacityFound = creneauEnseignement.capacity;
+									}
 								}
 							}
-						}
-					})
-				}
-			})
-		});
-		if(roomFound){
-			logger.info("La capacité maximale de la salle "+args.room+" trouvée dans la base de données est de "+maxCapacityFound);
-		}else{
-			logger.info("La salle "+ args.room +" ne figure pas dans la base de données.")
+						})
+					}
+				})
+			});
+			if (roomFound) {
+				fs.writeFile('roomCapacity.txt', args.room+":"+maxCapacityFound+'\n', (err)=>{return err;});//Save the capacity of the room in the file
+				logger.info("La capacité maximale de la salle " + args.room + " trouvée dans la base de données est de " + maxCapacityFound);
+			} else {
+				logger.info("La salle " + args.room + " ne figure pas dans la base de données.")
+			}
 		}
 	})
 			
