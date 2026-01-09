@@ -21,7 +21,7 @@ Puis faites les commandes suivantes :
 
 ## 2. Licence
 
-Projet développé dans un contexte académique — diffusion restreinte aux étudiants du cours de GL02.
+Projet développé dans un contexte académique - diffusion restreinte aux étudiants du cours de GL02.
 
 ## 3. Auteurs
 
