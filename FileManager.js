@@ -1,257 +1,323 @@
+/**
+ * @fileoverview Gestionnaire de fichiers pour l'accès et la manipulation des fichiers CRU.
+ * Les fichiers sont organisés alphabétiquement dans des sous-dossiers (AB, CD, EF, etc.)
+ * 
+ * @module FileManager
+ * @requires fs
+ * @requires ./CruParser
+ * @requires ./CreneauEnseignement
+ * @requires ./Cours
+ * @requires ./HeureMinute
+ */
+
 const fs = require('fs');
 const CruParser = require('./CruParser.js');
 const CreneauEnseignement = require('./CreneauEnseignement.js');
 const Cours = require('./Cours.js');
 const HeureMinute = require('./HeureMinute.js');
 
-class FileManager{
+/**
+ * Classe statique pour gérer l'accès aux fichiers CRU organisés alphabétiquement.
+ * Fournit des méthodes pour naviguer dans les fichiers et vérifier la cohérence des données.
+ * 
+ * @class FileManager
+ * @static
+ * 
+ * @example
+ * // Parcourir tous les fichiers
+ * FileManager.initialize();
+ * while(FileManager.hasNext()) {
+ *     const filePath = FileManager.next();
+ *     // Traiter le fichier
+ * }
+ */
+class FileManager {
 
+    /**
+     * Liste des dossiers contenant les fichiers CRU.
+     * Organisés par paires de lettres alphabétiques (AB, CD, EF, etc.)
+     * 
+     * @static
+     * @type {string[]}
+     */
     static folders = ["AB","CD","EF","GH","IJ","KL","MN","OP","QR","ST"];
+    
+    /**
+     * Index courant pour la navigation dans la liste des dossiers.
+     * Utilisé par les méthodes hasNext() et next().
+     * 
+     * @static
+     * @type {number}
+     */
     static index = 0;
+    
+    /**
+     * Répertoire racine où se trouvent les dossiers de données.
+     * Par défaut "." (répertoire courant).
+     * Peut être modifié pour pointer vers overlappedData lors des tests.
+     * 
+     * @static
+     * @type {string}
+     */
     static root = ".";
 
     /**
-     * Return a relative file path according to the first letter of the argument <nomCours>. The files are expected to be found at, starting from projet root, "/SujetA_data/".
-     * Courses are then sorted in alphabetical order inside sub-repositories, example : "/SujetA_data/AB/edt.cru" for courses starting with A or B.
-     * Caution : function only returns the path to the expected file, does not check if the file contains the course.
+     * Trouve le chemin du fichier CRU contenant un cours donné.
+     * Utilise la première lettre du nom du cours pour déterminer le dossier.
      * 
-     * @param {String} nomCours nom du cours dont on cherche le fichier
-     * @returns relative file path to the supposed .cru file containing the course
+     * @static
+     * @param {string} nomCours - Le nom du cours à rechercher
+     * @returns {string|number} Le chemin relatif du fichier .cru ou -1 si le cours ne correspond à aucun dossier
+     * 
+     * @example
+     * // Rechercher le cours "AP03"
+     * const filePath = FileManager.findFileWithCourse("AP03");
+     * // Retourne: "./SujetA_data/AB/edt.cru"
+     * 
+     * @example
+     * // Cours inexistant
+     * const filePath = FileManager.findFileWithCourse("ZZ99");
+     * // Retourne: -1
      */
-    static findFileWithCourse(nomCours){
+    static findFileWithCourse(nomCours) {
         let filePath;
-        switch(nomCours[0]){
-            case "A" :
-                filePath=FileManager.root+"/SujetA_data/AB/edt.cru";
+        
+        // Extraction de la première lettre du nom du cours
+        const firstLetter = nomCours[0];
+        
+        switch(firstLetter) {
+            case "A":
+            case "B":
+                filePath = FileManager.root + "/SujetA_data/AB/edt.cru";
                 break;
-            case "B" :
-                filePath=FileManager.root+"/SujetA_data/AB/edt.cru";
+            case "C":
+            case "D":
+                filePath = FileManager.root + "/SujetA_data/CD/edt.cru";
                 break;
-            case "C" :
-                filePath=FileManager.root+"/SujetA_data/CD/edt.cru";
+            case "E":
+            case "F":
+                filePath = FileManager.root + "/SujetA_data/EF/edt.cru";
                 break;
-            case "D" :
-                filePath=FileManager.root+"/SujetA_data/CD/edt.cru";
+            case "G":
+            case "H":
+                filePath = FileManager.root + "/SujetA_data/GH/edt.cru";
                 break;
-            case "E" :
-                filePath=FileManager.root+"/SujetA_data/EF/edt.cru";
+            case "I":
+            case "J":
+                filePath = FileManager.root + "/SujetA_data/IJ/edt.cru";
                 break;
-            case "F" :
-                filePath=FileManager.root+"/SujetA_data/EF/edt.cru";
+            case "K":
+            case "L":
+                filePath = FileManager.root + "/SujetA_data/KL/edt.cru";
                 break;
-            case "G" :
-                filePath=FileManager.root+"/SujetA_data/GH/edt.cru";
+            case "M":
+            case "N":
+                filePath = FileManager.root + "/SujetA_data/MN/edt.cru";
                 break;
-            case "H" :
-                filePath=FileManager.root+"/SujetA_data/GH/edt.cru";
+            case "O":
+            case "P":
+                filePath = FileManager.root + "/SujetA_data/OP/edt.cru";
                 break;
-            case "I" :
-                filePath=FileManager.root+"/SujetA_data/IJ/edt.cru";
+            case "Q":
+            case "R":
+                filePath = FileManager.root + "/SujetA_data/QR/edt.cru";
                 break;
-            case "J" :
-                filePath=FileManager.root+"/SujetA_data/IJ/edt.cru";
-                break;
-            case "K" :
-                filePath=FileManager.root+"/SujetA_data/KL/edt.cru";
-                break;
-            case "L" :
-                filePath=FileManager.root+"/SujetA_data/KL/edt.cru";
-                break;
-            case "M" :
-                filePath=FileManager.root+"/SujetA_data/MN/edt.cru";
-                break;
-            case "N" :
-                filePath=FileManager.root+"/SujetA_data/MN/edt.cru";
-                break;
-            case "O" :
-                filePath=FileManager.root+"/SujetA_data/OP/edt.cru";
-                break;
-            case "P" :
-                filePath=FileManager.root+"/SujetA_data/OP/edt.cru";
-                break;
-            case "Q" :
-                filePath=FileManager.root+"/SujetA_data/QR/edt.cru";
-                break;
-            case "R" :
-                filePath=FileManager.root+"/SujetA_data/QR/edt.cru";
-                break;
-            case "S" :
-                filePath=FileManager.root+"/SujetA_data/ST/edt.cru";
-                break;
-            case "T" :
-                filePath=FileManager.root+"/SujetA_data/ST/edt.cru";
+            case "S":
+            case "T":
+                filePath = FileManager.root + "/SujetA_data/ST/edt.cru";
                 break;
             default:
+                // Lettre non supportée (U-Z ou caractères spéciaux)
                 return -1;
         }
         
-
-        return filePath
+        return filePath;
     }
     
     /**
-     * Set the static object FileManager.index to 0. Always used before getting all file paths.
+     * Initialise l'index de navigation à 0.
+     * DOIT être appelé avant de commencer à parcourir les fichiers avec hasNext() et next().
      * 
-     * To get all the relative file paths, always proceed as such :
+     * @static
+     * @returns {void}
      * 
+     * @example
      * FileManager.initialize();
-     * while(FileManager.hasNext()){
-     *      FileManager.next();
+     * while(FileManager.hasNext()) {
+     *     const filePath = FileManager.next();
+     *     console.log(filePath);
      * }
      */
-    static initialize(){
-        this.index=0;
+    static initialize() {
+        this.index = 0;
     }
 
     /**
-     * Returns the next relative file path to come.
+     * Retourne le chemin du fichier CRU suivant et incrémente l'index.
+     * Utilise le dossier correspondant à l'index courant.
      * 
-     * To get all the relative file paths, always proceed as such :
+     * @static
+     * @returns {string} Le chemin relatif du fichier .cru suivant
      * 
+     * @example
      * FileManager.initialize();
-     * while(FileManager.hasNext()){
-     *      FileManager.next();
-     * }
-     * 
-     * @returns relative file path to the next .cru file.
+     * const firstFile = FileManager.next();
+     * // Retourne: "./SujetA_data/AB/edt.cru"
+     * const secondFile = FileManager.next();
+     * // Retourne: "./SujetA_data/CD/edt.cru"
      */
-    static next(){
+    static next() {
         const returnValue = this.folders[this.index];
         this.index++;
-        return (FileManager.root+"/SujetA_data/"+returnValue+"/edt.cru");
+        return (FileManager.root + "/SujetA_data/" + returnValue + "/edt.cru");
     }
 
     /**
-     * Returns if there is a next file path.
+     * Vérifie s'il reste des fichiers à parcourir.
      * 
-     * To get all the relative file paths, always proceed as such :
+     * @static
+     * @returns {boolean} true s'il reste des fichiers, false sinon
      * 
+     * @example
      * FileManager.initialize();
-     * while(FileManager.hasNext()){
-     *      FileManager.next();
+     * while(FileManager.hasNext()) {
+     *     // Traiter les fichiers
+     * }
+     */
+    static hasNext() {
+        return this.index !== this.folders.length;
+    }
+
+    /**
+     * Vérifie la cohérence de toute la base de données.
+     * Parcourt tous les fichiers CRU et détecte les chevauchements de créneaux dans une même salle.
+     * 
+     * Algorithme :
+     * 1. Parse tous les fichiers CRU
+     * 2. Pour chaque créneau, vérifie s'il ne chevauche pas d'autres créneaux dans la même salle
+     * 3. Regroupe les chevauchements détectés
+     * 4. Affiche les détails si demandé
+     * 
+     * @static
+     * @param {boolean} showValue - Si true, affiche les détails des chevauchements détectés
+     * @returns {boolean} true si aucun chevauchement n'est détecté, false sinon
+     * 
+     * @example
+     * // Vérification simple
+     * if(FileManager.dataConsistency(false)) {
+     *     console.log("Base de données cohérente");
      * }
      * 
-     * @returns true if there is still a file path to return, false if there is none
+     * @example
+     * // Vérification avec affichage des détails
+     * if(!FileManager.dataConsistency(true)) {
+     *     console.log("Des conflits ont été détectés (voir ci-dessus)");
+     * }
      */
-    static hasNext(){
-        if(this.index===this.folders.length){
-            return false;
-        }else{
-            return true;
-        }
-    }
-
-
-
-    /**
-     * Vérifie si tous les créneaux de tous les fichiers ne se situent pas en même temps dans la même salle.
-     * Ecrit dans la console les créneaux qui overlap si il y en a.
-     * 
-     * @param {Boolean} showValue true affiche les créneaux horaires qui se superposent, false ne les affiche pas
-     * @returns true si aucun créneau n'est en même temps, false sinon
-     */
-    static dataConsistency(showValue){
+    static dataConsistency(showValue) {
+        // Initialisation de la navigation dans les fichiers
         FileManager.initialize();
 
-		let listeCours=[];
+        // Collection de tous les cours de tous les fichiers
+        let listeCours = [];
 
-		while(FileManager.hasNext()){
+        // Parcours de tous les fichiers CRU
+        while(FileManager.hasNext()) {
+            let data = fs.readFileSync(FileManager.next(), 'utf8');
+            let analyzer = new CruParser(false, false);
+            analyzer.parse(data);
+            listeCours.push(analyzer.parsedCours);
+        }
 
-			let data = fs.readFileSync(FileManager.next(), 'utf8');
-			let analyzer = new CruParser(false, false);
-			analyzer.parse(data);
-			listeCours.push(analyzer.parsedCours);
-		}
-
+        // Variables pour la détection des chevauchements
         let currentCreneauEnseignement;
-        let listeCreneauEnseignementIncoherent= [];
-        listeCreneauEnseignementIncoherent[0]= new Array();
-        let listeCoursIncoherent= [];
+        let listeCreneauEnseignementIncoherent = [];
+        listeCreneauEnseignementIncoherent[0] = new Array();
+        let listeCoursIncoherent = [];
         let indiceListe = 0;
-        let globalFoundOverlap= false;
-        let foundOverlap=false;
+        let globalFoundOverlap = false;
+        let foundOverlap = false;
+        let verificationDoublon = false;
 
-
-        let verificationDoublon=false;
-
+        // Parcours de tous les cours pour détecter les chevauchements
         listeCours.forEach((fileCourses) => {
-			fileCourses.forEach((course) =>{
-				if(course instanceof Cours){
-					course.listeCreneauEnseignement.forEach((creneauEnseignement) => {
-						if(creneauEnseignement instanceof CreneauEnseignement){
+            fileCourses.forEach((course) => {
+                if(course instanceof Cours) {
+                    course.listeCreneauEnseignement.forEach((creneauEnseignement) => {
+                        if(creneauEnseignement instanceof CreneauEnseignement) {
+                            currentCreneauEnseignement = creneauEnseignement;
 
-                            currentCreneauEnseignement=creneauEnseignement;
-
-							listeCours.forEach((fileCourses2) => {
-                                fileCourses2.forEach((course2) =>{
-                                    if(course2 instanceof Cours){
+                            // Comparaison avec tous les autres créneaux
+                            listeCours.forEach((fileCourses2) => {
+                                fileCourses2.forEach((course2) => {
+                                    if(course2 instanceof Cours) {
                                         course2.listeCreneauEnseignement.forEach((creneauEnseignement2) => {
-                                            if(creneauEnseignement2 instanceof CreneauEnseignement){
+                                            if(creneauEnseignement2 instanceof CreneauEnseignement) {
                                                 
-                                                if(creneauEnseignement2!=currentCreneauEnseignement){
-                                                    if(!(currentCreneauEnseignement.doesntOverlap(creneauEnseignement2))){
+                                                // Ne pas comparer un créneau avec lui-même
+                                                if(creneauEnseignement2 != currentCreneauEnseignement) {
+                                                    // Détection du chevauchement
+                                                    if(!(currentCreneauEnseignement.doesntOverlap(creneauEnseignement2))) {
                                                         
-                                                        verificationDoublon=false;
+                                                        verificationDoublon = false;
 
-                                                        if(globalFoundOverlap){
-                                                            listeCreneauEnseignementIncoherent.forEach((bloc)=>{
-                                                                
-                                                                //console.log(JSON.stringify(bloc));
-                                                                if(bloc.includes(currentCreneauEnseignement) && bloc.includes(creneauEnseignement2)){
-                                                                    //console.log('Worked !');
-                                                                    verificationDoublon=true;
+                                                        // Vérifier si ce chevauchement n'a pas déjà été enregistré
+                                                        if(globalFoundOverlap) {
+                                                            listeCreneauEnseignementIncoherent.forEach((bloc) => {
+                                                                if(bloc.includes(currentCreneauEnseignement) && 
+                                                                   bloc.includes(creneauEnseignement2)) {
+                                                                    verificationDoublon = true;
                                                                 }
                                                             });
                                                         }
-                                                        if(!verificationDoublon){
                                                         
-                                                            if(!foundOverlap){
-                                                                listeCreneauEnseignementIncoherent[indiceListe]= new Array();
+                                                        // Enregistrement du nouveau chevauchement
+                                                        if(!verificationDoublon) {
+                                                            if(!foundOverlap) {
+                                                                listeCreneauEnseignementIncoherent[indiceListe] = new Array();
                                                                 listeCoursIncoherent.push(course.nomCours);
                                                                 listeCreneauEnseignementIncoherent[indiceListe].push(currentCreneauEnseignement);
-                                                                
                                                             }
-                                                            globalFoundOverlap=true;
-                                                            foundOverlap=true;
+                                                            globalFoundOverlap = true;
+                                                            foundOverlap = true;
                                                             listeCoursIncoherent.push(course2.nomCours);
                                                             listeCreneauEnseignementIncoherent[indiceListe].push(creneauEnseignement2);
                                                         }
                                                     }
                                                 }
-
-
-                                                
                                             }
                                         });
                                     }
                                 });
                             });
 
-                            foundOverlap=false;
+                            foundOverlap = false;
                             indiceListe++;
+                        }
+                    });
+                }
+            });
+        });
 
-						}
-					})
-				}
-			})
-		});
-
-
-        let indiceCours=0;
+        // Affichage des résultats si demandé
+        let indiceCours = 0;
         let i = 0;
-        if(globalFoundOverlap){
-            if(showValue){
-                let message ="Créneaux incohérents trouvés :";
-                listeCreneauEnseignementIncoherent.forEach((group)=>{
-                    message= message+"\n"
-                    i=0;
-                    group.forEach((creneau)=>{
-                        if(i===0){
-                            message=message + "Le créneau :\n" + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\navec :\n";
+        if(globalFoundOverlap) {
+            if(showValue) {
+                let message = "Créneaux incohérents trouvés :";
+                listeCreneauEnseignementIncoherent.forEach((group) => {
+                    message = message + "\n";
+                    i = 0;
+                    group.forEach((creneau) => {
+                        if(i === 0) {
+                            message = message + "Le créneau :\n" + 
+                                     listeCoursIncoherent[indiceCours] + " : " + 
+                                     creneau.toString() + "\navec :\n";
                             indiceCours++;
                             i++;
-                        }else{
-                            message=message + listeCoursIncoherent[indiceCours]+ " : " + creneau.toString()+"\n";
+                        } else {
+                            message = message + listeCoursIncoherent[indiceCours] + " : " + 
+                                     creneau.toString() + "\n";
                             indiceCours++;
                         }
                     });
@@ -259,11 +325,10 @@ class FileManager{
                 console.log(message);
             }
             return false;
-        }else{
+        } else {
             return true;
         }
-       
-
     }
 }
-module.exports = FileManager
+
+module.exports = FileManager;
